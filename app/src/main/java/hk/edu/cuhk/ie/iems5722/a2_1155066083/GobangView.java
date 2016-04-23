@@ -9,9 +9,29 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by tanshen on 2016/4/23.
@@ -65,6 +85,8 @@ public class GobangView extends SurfaceView implements Params,
     Bitmap mWhite = null;
 
     Context mContext = null;
+
+    public static final String BASE_URL = "http://52.196.31.83/iems5722";
 
     public GobangView(Activity activity, int screenWidth, int screenHeight) {
         super(activity);
@@ -265,6 +287,7 @@ public class GobangView extends SurfaceView implements Params,
     private void UpdateTouchEvent(int x, int y) {
         switch (mGameState) {
             case GS_GAME:
+
                 if (x > 0 && y > mTitleHeight) {
                     mMapIndexX = (int) (x / mTitleSpace);
                     mMapIndexY = (int) ((y - mTitleHeight) / mTitleSpace);
@@ -283,6 +306,8 @@ public class GobangView extends SurfaceView implements Params,
                     if (mMapIndexY < 0) {
                         mMapIndexY = 0;
                     }
+                    ItemSend item = new ItemSend(mMapIndexX+"", mMapIndexY+"", mCampTurn+"");
+                    sendMessage(item);
                     if (mGameMap[mMapIndexY][mMapIndexX] == CAMP_DEFAULT) {
 
                         if (mCampTurn == CAMP_HERO) {
@@ -417,5 +442,101 @@ public class GobangView extends SurfaceView implements Params,
             }
         }
 
+    }
+
+    public void sendMessage(ItemSend item){
+        Map<String, String> paramsMap = new HashMap<>();
+        paramsMap.put("x", item.x);
+        paramsMap.put("y", item.y);
+        paramsMap.put("campTurn", item.campTure);
+
+//        ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+//        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+        PostMessageTask postMessageTask = new PostMessageTask(paramsMap);
+        postMessageTask.execute(BASE_URL + "/send_gobang");
+
+
+//        if (networkInfo != null && networkInfo.isConnected()){
+//            postMessageTask.execute(BASE_URL + "/send_gobang");
+//        }
+//        else {
+//            Toast.makeText(getApplicationContext(), "No network connection available.", Toast.LENGTH_SHORT).show();
+//        }
+    }
+
+    private class PostMessageTask extends AsyncTask<String, Void, String> {
+        private Map<String, String> paramsMap;
+
+        public PostMessageTask(Map<String, String> paramsMap){
+            this.paramsMap = paramsMap;
+        }
+
+        @Override
+        protected String doInBackground(String... urls){
+            try {
+                return uploadUrl(urls[0], paramsMap);
+            } catch (IOException e) {
+                return "Unable to retrieve web page. URL may be invalid.";
+            }
+        }
+
+        protected void onPostExecute(String result){
+            try {
+                JSONObject json = new JSONObject(result);
+                String status = json.getString("status");
+                if (status.equals("ERROR")){
+//                    Toast.makeText(getApplicationContext(), "Cannot post the message!", Toast.LENGTH_SHORT).show();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        private String uploadUrl(String myurl, final Map<String, String> paramsMap) throws IOException{
+            InputStream is = null;
+            try {
+                URL url = new URL(myurl);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setReadTimeout(15000);
+                conn.setConnectTimeout(15000);
+                conn.setRequestMethod("POST");
+                conn.setDoInput(true);
+                conn.setDoOutput(true);
+
+                OutputStream os = conn.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+
+                Uri.Builder builder = new Uri.Builder();
+                for (String key : paramsMap.keySet()){
+                    builder.appendQueryParameter(key, paramsMap.get(key));
+                }
+                String query = builder.build().getEncodedQuery();
+
+                writer.write(query);
+                writer.flush();
+                writer.close();
+                os.close();
+
+                int responseCode = conn.getResponseCode();
+                String results = "";
+                is = conn.getInputStream();
+                if (responseCode == HttpURLConnection.HTTP_OK){
+                    String line;
+                    BufferedReader br = new BufferedReader( new InputStreamReader(is));
+                    while ((line = br.readLine()) != null) {
+                        results += line;
+                    }
+                }
+                return results;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return "";
+            } finally {
+                if (is != null){
+                    is.close();
+                }
+            }
+        }
     }
 }
