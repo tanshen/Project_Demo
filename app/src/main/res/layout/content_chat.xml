@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="hk.edu.cuhk.ie.iems5722.a2_1155066083.ChatroomActivity"
+    tools:showIn="@layout/activity_chat">
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:isScrollContainer="false">
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:weightSum="1">
+        <ListView
+            android:layout_width="wrap_content"
+            android:layout_height="475dp"
+            android:id="@+id/chat_list"
+            android:layout_gravity="center_horizontal"
+            android:stackFromBottom="true"
+            android:divider="@null"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/editText"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:enabled="true"
+                android:editable="true"
+                android:elegantTextHeight="false"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:layout_toLeftOf="@+id/imageButton"
+                android:layout_toStartOf="@+id/imageButton"
+                android:layout_alignParentTop="true"
+                android:contextClickable="true"
+                android:clickable="true"
+                android:textIsSelectable="false"
+                />
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/imageButton"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:src="@android:drawable/ic_menu_send"
+                android:layout_alignTop="@+id/editText"
+                android:layout_alignParentTop="false"
+                android:contentDescription="" />
+        </RelativeLayout>
+
+    </LinearLayout>
+</ScrollView>
+    </RelativeLayout>
