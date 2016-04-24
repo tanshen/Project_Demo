@@ -7,16 +7,20 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GcmListenerService;
+import hk.edu.cuhk.ie.iems5722.a2_1155066083.GobangView;
 
 /**
  * Created by tanshen on 2016/4/5.
  */
 
 public class MyGcmListenerService extends GcmListenerService {
+
+    public static android.os.Handler UIHandler = new android.os.Handler(Looper.getMainLooper());
 
     private static final String TAG = "MyGcmListenerService";
 
@@ -34,6 +38,21 @@ public class MyGcmListenerService extends GcmListenerService {
         String var = data.getString("var");
         Log.d(TAG, "From: " + id);
         Log.d(TAG, "Message: " + var);
+        int tmp = Integer.parseInt(id);
+        final int x = (tmp-1) %  9;
+        final int y = (tmp-1) / 9;
+
+        UIHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                GobangView.mMapIndexY =y;
+                GobangView.mMapIndexX =x;
+                if (GobangView.mGameMap[GobangView.mMapIndexY][GobangView.mMapIndexX] == GobangView.CAMP_DEFAULT) {
+                    GobangView.mGameMap[GobangView.mMapIndexY][GobangView.mMapIndexY] = GobangView.mCampTurn;
+                    GobangView.mCampTurn = 3 - GobangView.mCampTurn;
+                }
+            }
+        });
 
         if (from.startsWith("/topics/")) {
             // message received from some topic.

@@ -46,9 +46,9 @@ public class GobangView extends SurfaceView implements Params,
     public static Canvas sCanvas = null;
     public static Resources sResources = null;
     static GobangView sInstance = null;
-    public int[][] mGameMap = null;
+    public static int[][] mGameMap = null;
     public int[][] GameMapDB = null;
-    public int mCampTurn = 0;
+    public static int mCampTurn = 0;
     public int mCampWinner = 0;
     // 控制循环
     boolean mbLoop = false;
@@ -63,8 +63,8 @@ public class GobangView extends SurfaceView implements Params,
     private int mScreenHeight = 0;
     private int mMapHeightLengh = 0;
     private int mMapWidthLengh = 0;
-    private int mMapIndexX = 0;
-    private int mMapIndexY = 0;
+    public static int mMapIndexX = 0;
+    public static int mMapIndexY = 0;
     private float mTitleSpace = 0;
     private int mTitleHeight = 0;
     private float mTitleIndex_x = 0;
@@ -300,28 +300,28 @@ public class GobangView extends SurfaceView implements Params,
                     }
                     ItemSend item = new ItemSend(mMapIndexX+"", mMapIndexY+"", mCampTurn+"");
                     sendMessage(item);
-                    if (mGameMap[mMapIndexY][mMapIndexX] == CAMP_DEFAULT) {
-
-                        if (mCampTurn == CAMP_HERO) {
-                            mGameMap[mMapIndexY][mMapIndexX] = CAMP_HERO;
-                            if (CheckPiecesMeet(CAMP_HERO)) {
-                                mCampWinner = R.string.Role_black;
-                                setGameState(GS_END);
-                            } else {
-                                mCampTurn = CAMP_ENEMY;
-                            }
-
-                        } else {
-                            mGameMap[mMapIndexY][mMapIndexX] = CAMP_ENEMY;
-                            if (CheckPiecesMeet(CAMP_ENEMY)) {
-                                mCampWinner = R.string.Role_white;
-                                setGameState(GS_END);
-                            } else {
-                                mCampTurn = CAMP_HERO;
-                            }
-                        }
-                    }
-                    getMessage();
+//                    if (mGameMap[mMapIndexY][mMapIndexX] == CAMP_DEFAULT) {
+//
+//                        if (mCampTurn == CAMP_HERO) {
+//                            mGameMap[mMapIndexY][mMapIndexX] = CAMP_HERO;
+//                            if (CheckPiecesMeet(CAMP_HERO)) {
+//                                mCampWinner = R.string.Role_black;
+//                                setGameState(GS_END);
+//                            } else {
+//                                mCampTurn = CAMP_ENEMY;
+//                            }
+//
+//                        } else {
+//                            mGameMap[mMapIndexY][mMapIndexX] = CAMP_ENEMY;
+//                            if (CheckPiecesMeet(CAMP_ENEMY)) {
+//                                mCampWinner = R.string.Role_white;
+//                                setGameState(GS_END);
+//                            } else {
+//                                mCampTurn = CAMP_HERO;
+//                            }
+//                        }
+//                    }
+//                    getMessage();
                 }
                 break;
             case GS_END:
