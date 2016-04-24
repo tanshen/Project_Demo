@@ -30,10 +30,10 @@ public class MyGcmListenerService extends GcmListenerService {
     // [START receive_message]
     @Override
     public void onMessageReceived(String from, Bundle data) {
-        String message = data.getString("message");
-        String title = data.getString("chatroom");
-        Log.d(TAG, "From: " + from);
-        Log.d(TAG, "Message: " + message);
+        String id = data.getString("id");
+        String var = data.getString("var");
+        Log.d(TAG, "From: " + id);
+        Log.d(TAG, "Message: " + var);
 
         if (from.startsWith("/topics/")) {
             // message received from some topic.
@@ -53,7 +53,7 @@ public class MyGcmListenerService extends GcmListenerService {
          * In some cases it may be useful to show a notification indicating to the user
          * that a message was received.
          */
-        sendNotification(message,title);
+        sendNotification(id,var);
         // [END_EXCLUDE]
     }
     // [END receive_message]
