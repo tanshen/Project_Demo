@@ -47,9 +47,8 @@ public class GobangView extends SurfaceView implements Params,
     public static Resources sResources = null;
     static GobangView sInstance = null;
     public static int[][] mGameMap = null;
-    public int[][] GameMapDB = null;
     public static int mCampTurn = 0;
-    public int mCampWinner = 0;
+    public static int mCampWinner = 0;
     // 控制循环
     boolean mbLoop = false;
     // 定义SurfaceHolder对象
@@ -58,11 +57,11 @@ public class GobangView extends SurfaceView implements Params,
     Bitmap mBlack = null;
     Bitmap mWhite = null;
     Context mContext = null;
-    private int mGameState = 0;
+    private static int mGameState = 0;
     private int mScreenWidth = 0;
     private int mScreenHeight = 0;
-    private int mMapHeightLengh = 0;
-    private int mMapWidthLengh = 0;
+    private static int mMapHeightLengh = 0;
+    private static int mMapWidthLengh = 0;
     public static int mMapIndexX = 0;
     public static int mMapIndexY = 0;
     private float mTitleSpace = 0;
@@ -106,12 +105,13 @@ public class GobangView extends SurfaceView implements Params,
         return sInstance;
     }
 
-    public void setGameState(int newState) {
+    public static void setGameState(int newState) {
         mGameState = newState;
         switch (mGameState) {
             case GS_GAME:
                 mGameMap = new int[CHESS_HEIGHT][CHESS_WIDTH];
-                GameMapDB = new int[CHESS_HEIGHT][CHESS_WIDTH];
+                ItemClear item = new ItemClear(mCampWinner + "");
+                sendClear(item);
                 mMapHeightLengh = mGameMap.length;
                 mMapWidthLengh = mGameMap[0].length;
                 mCampTurn = CAMP_HERO;
@@ -134,9 +134,11 @@ public class GobangView extends SurfaceView implements Params,
                 RenderMap();
                 break;
             case GS_END:
-                DrawRect(Color.RED, 0, 0, mScreenWidth, mScreenHeight);
+                RenderMap();
+                DrawRect(Color.RED, mScreenWidth/5, mScreenHeight/8, 4*mScreenWidth/5, mScreenHeight/3);
                 DrawString(Color.WHITE, sResources.getString(mCampWinner)
                         + "胜利 点击继续游戏", 50, 50);
+
                 break;
         }
 
@@ -188,7 +190,7 @@ public class GobangView extends SurfaceView implements Params,
         return super.onTouchEvent(event);
     }
 
-    public boolean CheckPiecesMeet(int Camp) {
+    public static boolean CheckPiecesMeet(int Camp) {
         int MeetCount = 0;
         // 横向
         for (int i = 0; i < CALU_ALL_COUNT; i++) {
@@ -305,26 +307,6 @@ public class GobangView extends SurfaceView implements Params,
                         ItemSend item = new ItemSend(mMapIndexX+"", mMapIndexY+"", mCampTurn+"");
                         sendMessage(item);
                     }
-    //
-//                        if (mCampTurn == CAMP_HERO) {
-//                            mGameMap[mMapIndexY][mMapIndexX] = CAMP_HERO;
-//                            if (CheckPiecesMeet(CAMP_HERO)) {
-//                                mCampWinner = R.string.Role_black;
-//                                setGameState(GS_END);
-//                            } else {
-//                                mCampTurn = CAMP_ENEMY;
-//                            }
-//
-//                        } else {
-//                            mGameMap[mMapIndexY][mMapIndexX] = CAMP_ENEMY;
-//                            if (CheckPiecesMeet(CAMP_ENEMY)) {
-//                                mCampWinner = R.string.Role_white;
-//                                setGameState(GS_END);
-//                            } else {
-//                                mCampTurn = CAMP_HERO;
-//                            }
-//                        }
-//                    }
 
                 }
                 break;
@@ -443,7 +425,7 @@ public class GobangView extends SurfaceView implements Params,
         Map<String, String> paramsMap = new HashMap<>();
         paramsMap.put("x", item.x);
         paramsMap.put("y", item.y);
-        paramsMap.put("campTurn", item.campTure);
+        paramsMap.put("campTurn", item.campTurn);
 
 //        ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
 //        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
@@ -460,12 +442,6 @@ public class GobangView extends SurfaceView implements Params,
 //        }
     }
 
-    public void getMessage() {
-        // Gets the URL from the UI's text field.
-        //String stringUrl = urlText.getText().toString();
-        String stringUrl = (BASE_URL + "/get_gobang");
-        new GetMsgTask().execute(stringUrl);
-    }
 
     private class PostMessageTask extends AsyncTask<String, Void, String> {
         private Map<String, String> paramsMap;
@@ -541,71 +517,89 @@ public class GobangView extends SurfaceView implements Params,
             }
         }
     }
+    public static void sendClear(ItemClear item){
+        Map<String, String> paramsMap = new HashMap<>();
+        paramsMap.put("winner", item.winner);
+        PostClearTask postClearTask = new PostClearTask(paramsMap);
+        postClearTask.execute(BASE_URL + "/send_clear");
 
-    private class GetMsgTask extends AsyncTask<String, Void, String> {
+//        if (networkInfo != null && networkInfo.isConnected()){
+//            postMessageTask.execute(BASE_URL + "/send_gobang");
+//        }
+//        else {
+//            Toast.makeText(getApplicationContext(), "No network connection available.", Toast.LENGTH_SHORT).show();
+//        }
+    }
+
+
+    private static class PostClearTask extends AsyncTask<String, Void, String> {
+        private Map<String, String> paramsMap;
+        public PostClearTask(Map<String, String> paramsMap){
+            this.paramsMap = paramsMap;
+        }
+
         @Override
-        protected String doInBackground(String... urls) {
-            // params comes from the execute() call: params[0] is the url.
+        protected String doInBackground(String... urls){
             try {
-                return downloadUrl(urls[0]);
+                return uploadUrl(urls[0], paramsMap);
             } catch (IOException e) {
                 return "Unable to retrieve web page. URL may be invalid.";
             }
         }
-        @Override
-        protected void onPostExecute(String result) {
-            // textView.setText(result);
-            JSONObject json = null;
-            try {
-                json = new JSONObject(result);;
-                JSONArray messages = json.getJSONArray("data");
-                String status = json.getString("status");
-                if (status.equals("OK")) {
-                    Log.e("chat", result);
 
-                    for (int i = 0; i < messages.length(); i++) {
-                        String id = messages.getJSONObject(i).getString("id");
-                        String name = messages.getJSONObject(i).getString("var");
-                        int tmp = Integer.parseInt(id);
-                        int var = Integer.parseInt(name);
-                        int x,y;
-                        x = (tmp-1) %  9;
-                        y = (tmp-1) / 9;
-                        mGameMap[y][x]=var;
-                    }
+        protected void onPostExecute(String result){
+            try {
+                JSONObject json = new JSONObject(result);
+                String status = json.getString("status");
+                if (status.equals("ERROR")){
+//                    Toast.makeText(getApplicationContext(), "Cannot post the message!", Toast.LENGTH_SHORT).show();
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
-        private String downloadUrl(String myurl) throws IOException {
+
+        private String uploadUrl(String myurl, final Map<String, String> paramsMap) throws IOException{
             InputStream is = null;
-            // Only display the first 500 characters of the retrieved
-            // web page content.
-            int len = 500;
             try {
                 URL url = new URL(myurl);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setReadTimeout(10000 /* milliseconds */);
-                conn.setConnectTimeout(15000 /* milliseconds */);
-                conn.setRequestMethod("GET");
+                conn.setReadTimeout(15000);
+                conn.setConnectTimeout(15000);
+                conn.setRequestMethod("POST");
                 conn.setDoInput(true);
-                // Starts the query
-                conn.connect();
-                int response = conn.getResponseCode();
+                conn.setDoOutput(true);
+
+                OutputStream os = conn.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+
+                Uri.Builder builder = new Uri.Builder();
+                for (String key : paramsMap.keySet()){
+                    builder.appendQueryParameter(key, paramsMap.get(key));
+                }
+                String query = builder.build().getEncodedQuery();
+
+                writer.write(query);
+                writer.flush();
+                writer.close();
+                os.close();
+
+                int responseCode = conn.getResponseCode();
+                String results = "";
                 is = conn.getInputStream();
-                // Convert the InputStream into a string
-                String results="";
-                String line;
-                BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                while ((line = br.readLine()) != null) {
-                    results += line;
+                if (responseCode == HttpURLConnection.HTTP_OK){
+                    String line;
+                    BufferedReader br = new BufferedReader( new InputStreamReader(is));
+                    while ((line = br.readLine()) != null) {
+                        results += line;
+                    }
                 }
                 return results;
-                // Makes sure that the InputStream is closed after the app is
-                // finished using it.
+            } catch (Exception e) {
+                e.printStackTrace();
+                return "";
             } finally {
-                if (is != null) {
+                if (is != null){
                     is.close();
                 }
             }
