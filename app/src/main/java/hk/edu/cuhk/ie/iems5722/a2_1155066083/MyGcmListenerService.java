@@ -48,7 +48,7 @@ public class MyGcmListenerService extends GcmListenerService {
                 GobangView.mMapIndexY =y;
                 GobangView.mMapIndexX =x;
                 if (GobangView.mGameMap[GobangView.mMapIndexY][GobangView.mMapIndexX] == GobangView.CAMP_DEFAULT) {
-                    GobangView.mGameMap[GobangView.mMapIndexY][GobangView.mMapIndexY] = GobangView.mCampTurn;
+                    GobangView.mGameMap[GobangView.mMapIndexY][GobangView.mMapIndexX] = GobangView.mCampTurn;
                     GobangView.mCampTurn = 3 - GobangView.mCampTurn;
                 }
             }
