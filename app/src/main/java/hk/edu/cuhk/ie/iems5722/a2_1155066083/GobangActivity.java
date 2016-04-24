@@ -19,6 +19,7 @@ public class GobangActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         // 隐藏标题栏
        // requestWindowFeature(Window.FEATURE_NO_TITLE);
+
         // 全屏显示
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         // 获取屏幕宽高
@@ -27,6 +28,7 @@ public class GobangActivity extends AppCompatActivity {
         GobangView.init(this, display.getWidth(), display.getHeight());
         gobangView = GobangView.getInstance();
         setContentView(gobangView);
+//        setContentView(R.layout.activity_main);
     }
 
     @Override

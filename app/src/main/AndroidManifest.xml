@@ -25,9 +25,11 @@
             android:label="@string/chat_label"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustUnspecified|stateHidden"
-            android:fitsSystemWindows="true">>
+            android:fitsSystemWindows="true">
         </activity>
-        <activity android:name=".GobangActivity">
+        <activity android:name=".GobangActivity"
+            android:fitsSystemWindows="true"
+            android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <!-- [START gcm_receiver] -->
         <receiver

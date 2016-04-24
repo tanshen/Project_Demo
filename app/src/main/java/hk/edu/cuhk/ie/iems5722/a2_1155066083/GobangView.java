@@ -66,6 +66,7 @@ public class GobangView extends SurfaceView implements Params,
     public static int mMapIndexX = 0;
     public static int mMapIndexY = 0;
     private float mTitleSpace = 0;
+    private float mTitleSpacey = 0;
     private int mTitleHeight = 0;
     private float mTitleIndex_x = 0;
     private float mTitleIndex_y = 0;
@@ -89,6 +90,7 @@ public class GobangView extends SurfaceView implements Params,
         mWhite = BitmapFactory.decodeResource(GobangView.sResources,
                 R.drawable.human);
         mTitleSpace = (float) mScreenWidth / CHESS_WIDTH;
+        mTitleSpacey = mTitleSpace + 13;
         mTitleHeight = mScreenHeight / 3;
         mTitleIndex_x = (float) (mTitleSpace / 2);
         mTitleIndex_y = (float) (mTitleSpace / 2);
@@ -148,7 +150,7 @@ public class GobangView extends SurfaceView implements Params,
             for (j = 0; j < mMapWidthLengh; j++) {
                 int CampID = mGameMap[i][j];
                 float x = (j * mTitleSpace) + mTitleIndex_x;
-                float y = (i * mTitleSpace) + mTitleHeight + mTitleIndex_y;
+                float y = (i * mTitleSpacey) + mTitleHeight + mTitleIndex_y;
                 if (CampID == CAMP_HERO) {
                     DrawImage(mBlack, x, y, ALIGN_VCENTER | ALIGN_HCENTER);
                 } else if (CampID == CAMP_ENEMY) {
@@ -282,7 +284,7 @@ public class GobangView extends SurfaceView implements Params,
 
                 if (x > 0 && y > mTitleHeight) {
                     mMapIndexX = (int) (x / mTitleSpace);
-                    mMapIndexY = (int) ((y - mTitleHeight) / mTitleSpace);
+                    mMapIndexY = (int) ((y - mTitleHeight) / mTitleSpacey);
 
                     if (mMapIndexX > mMapWidthLengh) {
                         mMapIndexX = mMapWidthLengh;
@@ -298,10 +300,12 @@ public class GobangView extends SurfaceView implements Params,
                     if (mMapIndexY < 0) {
                         mMapIndexY = 0;
                     }
-                    ItemSend item = new ItemSend(mMapIndexX+"", mMapIndexY+"", mCampTurn+"");
-                    sendMessage(item);
-//                    if (mGameMap[mMapIndexY][mMapIndexX] == CAMP_DEFAULT) {
-//
+
+                    if (mGameMap[mMapIndexY][mMapIndexX] == CAMP_DEFAULT) {
+                        ItemSend item = new ItemSend(mMapIndexX+"", mMapIndexY+"", mCampTurn+"");
+                        sendMessage(item);
+                    }
+    //
 //                        if (mCampTurn == CAMP_HERO) {
 //                            mGameMap[mMapIndexY][mMapIndexX] = CAMP_HERO;
 //                            if (CheckPiecesMeet(CAMP_HERO)) {
