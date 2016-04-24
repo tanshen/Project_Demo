@@ -13,11 +13,13 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -39,54 +41,34 @@ import java.util.Map;
 public class GobangView extends SurfaceView implements Params,
         SurfaceHolder.Callback, Runnable {
 
-    static GobangView sInstance = null;
-
-    public static void init(Activity mActivity, int screenWidth,
-                            int screenHeight) {
-        sInstance = new GobangView(mActivity, screenWidth, screenHeight);
-    }
-
-    public static GobangView getInstance() {
-        return sInstance;
-    }
-
-    // 控制循环
-    boolean mbLoop = false;
-
-    // 定义SurfaceHolder对象
-    SurfaceHolder mSurfaceHolder = null;
-
+    public static final String BASE_URL = "http://52.196.31.83/iems5722";
     public static Paint sPaint = null;
     public static Canvas sCanvas = null;
     public static Resources sResources = null;
-    private int mGameState = 0;
-
-    private int mScreenWidth = 0;
-    private int mScreenHeight = 0;
-
+    static GobangView sInstance = null;
     public int[][] mGameMap = null;
-    private int mMapHeightLengh = 0;
-    private int mMapWidthLengh = 0;
-
-    private int mMapIndexX = 0;
-    private int mMapIndexY = 0;
-
+    public int[][] GameMapDB = null;
     public int mCampTurn = 0;
     public int mCampWinner = 0;
-
-    private float mTitleSpace = 0;
-    private int mTitleHeight = 0;
-
-    private float mTitleIndex_x = 0;
-    private float mTitleIndex_y = 0;
-
+    // 控制循环
+    boolean mbLoop = false;
+    // 定义SurfaceHolder对象
+    SurfaceHolder mSurfaceHolder = null;
     Bitmap bitmapBg = null;
     Bitmap mBlack = null;
     Bitmap mWhite = null;
-
     Context mContext = null;
-
-    public static final String BASE_URL = "http://52.196.31.83/iems5722";
+    private int mGameState = 0;
+    private int mScreenWidth = 0;
+    private int mScreenHeight = 0;
+    private int mMapHeightLengh = 0;
+    private int mMapWidthLengh = 0;
+    private int mMapIndexX = 0;
+    private int mMapIndexY = 0;
+    private float mTitleSpace = 0;
+    private int mTitleHeight = 0;
+    private float mTitleIndex_x = 0;
+    private float mTitleIndex_y = 0;
 
     public GobangView(Activity activity, int screenWidth, int screenHeight) {
         super(activity);
@@ -113,11 +95,21 @@ public class GobangView extends SurfaceView implements Params,
         setGameState(GS_GAME);
     }
 
+    public static void init(Activity mActivity, int screenWidth,
+                            int screenHeight) {
+        sInstance = new GobangView(mActivity, screenWidth, screenHeight);
+    }
+
+    public static GobangView getInstance() {
+        return sInstance;
+    }
+
     public void setGameState(int newState) {
         mGameState = newState;
         switch (mGameState) {
             case GS_GAME:
                 mGameMap = new int[CHESS_HEIGHT][CHESS_WIDTH];
+                GameMapDB = new int[CHESS_HEIGHT][CHESS_WIDTH];
                 mMapHeightLengh = mGameMap.length;
                 mMapWidthLengh = mGameMap[0].length;
                 mCampTurn = CAMP_HERO;
@@ -329,6 +321,7 @@ public class GobangView extends SurfaceView implements Params,
                             }
                         }
                     }
+                    getMessage();
                 }
                 break;
             case GS_END:
@@ -435,13 +428,11 @@ public class GobangView extends SurfaceView implements Params,
             try {
                 Thread.sleep(200);
             } catch (Exception e) {
-
             }
             synchronized (mSurfaceHolder) {
                 Draw();
             }
         }
-
     }
 
     public void sendMessage(ItemSend item){
@@ -463,6 +454,13 @@ public class GobangView extends SurfaceView implements Params,
 //        else {
 //            Toast.makeText(getApplicationContext(), "No network connection available.", Toast.LENGTH_SHORT).show();
 //        }
+    }
+
+    public void getMessage() {
+        // Gets the URL from the UI's text field.
+        //String stringUrl = urlText.getText().toString();
+        String stringUrl = (BASE_URL + "/get_gobang");
+        new GetMsgTask().execute(stringUrl);
     }
 
     private class PostMessageTask extends AsyncTask<String, Void, String> {
@@ -534,6 +532,76 @@ public class GobangView extends SurfaceView implements Params,
                 return "";
             } finally {
                 if (is != null){
+                    is.close();
+                }
+            }
+        }
+    }
+
+    private class GetMsgTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... urls) {
+            // params comes from the execute() call: params[0] is the url.
+            try {
+                return downloadUrl(urls[0]);
+            } catch (IOException e) {
+                return "Unable to retrieve web page. URL may be invalid.";
+            }
+        }
+        @Override
+        protected void onPostExecute(String result) {
+            // textView.setText(result);
+            JSONObject json = null;
+            try {
+                json = new JSONObject(result);;
+                JSONArray messages = json.getJSONArray("data");
+                String status = json.getString("status");
+                if (status.equals("OK")) {
+                    Log.e("chat", result);
+
+                    for (int i = 0; i < messages.length(); i++) {
+                        String id = messages.getJSONObject(i).getString("id");
+                        String name = messages.getJSONObject(i).getString("var");
+                        int tmp = Integer.parseInt(id);
+                        int var = Integer.parseInt(name);
+                        int x,y;
+                        x = (tmp-1) %  9;
+                        y = (tmp-1) / 9;
+                        mGameMap[y][x]=var;
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        private String downloadUrl(String myurl) throws IOException {
+            InputStream is = null;
+            // Only display the first 500 characters of the retrieved
+            // web page content.
+            int len = 500;
+            try {
+                URL url = new URL(myurl);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setReadTimeout(10000 /* milliseconds */);
+                conn.setConnectTimeout(15000 /* milliseconds */);
+                conn.setRequestMethod("GET");
+                conn.setDoInput(true);
+                // Starts the query
+                conn.connect();
+                int response = conn.getResponseCode();
+                is = conn.getInputStream();
+                // Convert the InputStream into a string
+                String results="";
+                String line;
+                BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                while ((line = br.readLine()) != null) {
+                    results += line;
+                }
+                return results;
+                // Makes sure that the InputStream is closed after the app is
+                // finished using it.
+            } finally {
+                if (is != null) {
                     is.close();
                 }
             }
