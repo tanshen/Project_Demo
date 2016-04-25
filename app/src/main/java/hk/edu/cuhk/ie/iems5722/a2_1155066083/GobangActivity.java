@@ -3,16 +3,35 @@ package hk.edu.cuhk.ie.iems5722.a2_1155066083;
 import android.support.v7.app.AppCompatActivity;
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
 
 /**
  * Created by tanshen on 2016/4/23.
  */
 public class GobangActivity extends AppCompatActivity {
     GobangView gobangView = null;
+
+    private Socket socket;
+    {
+        try {
+            socket = IO.socket("http://52.196.31.83");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    private static final String TAG = "ClientSocketIO";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -26,10 +45,92 @@ public class GobangActivity extends AppCompatActivity {
         Display display = getWindowManager().getDefaultDisplay();
         // 现实GobangView
         GobangView.init(this, display.getWidth(), display.getHeight());
+        try {
+            JSONObject json = new JSONObject();
+            json.put("text", "Socket from client!");
+            socket.emit("text", json);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         gobangView = GobangView.getInstance();
         setContentView(gobangView);
 //        setContentView(R.layout.activity_main);
+
+        socket.on(Socket.EVENT_CONNECT, onConnectSuccess);
+        socket.on("get_gobang", getGobangListener);
+        socket.on("update", onTextUpdate);
+        socket.connect();
     }
+
+    private Emitter.Listener getGobangListener = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        JSONObject data = new JSONObject((String) args[0]);
+                        String id = data.getString("id");
+                        String var = data.getString("var");
+                        int tmp = Integer.parseInt(id);
+                        final int x = (tmp-1) %  9;
+                        final int y = (tmp-1) / 9;
+
+                        if (GobangView.mCampTurn == GobangView.CAMP_HERO) {
+                            GobangView.mGameMap[y][x] = GobangView.CAMP_HERO;
+                            if (GobangView.CheckPiecesMeet(GobangView.CAMP_HERO)){
+                                GobangView.mCampWinner = R.string.Role_black;
+                                GobangView.setGameState(GobangView.GS_END);
+                            }else {
+                                GobangView.mCampTurn = GobangView.CAMP_ENEMY;
+                            }
+                        }
+                        else{
+                            GobangView.mGameMap[y][x] = GobangView.CAMP_ENEMY;
+                            if (GobangView.CheckPiecesMeet(GobangView.CAMP_ENEMY)){
+                                GobangView.mCampWinner = R.string.Role_white;
+                                GobangView.setGameState(GobangView.GS_END);
+                            }else {
+                                GobangView.mCampTurn = GobangView.CAMP_HERO;
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+    };
+
+    private Emitter.Listener onTextUpdate = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            try {
+                JSONObject data = (JSONObject) args[0];
+                final String text = data.getString("text");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d(TAG, "From: " + text);
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    };
+    private Emitter.Listener onConnectSuccess = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.d(TAG, "From: " + "connected!");
+                    Toast.makeText(getApplicationContext(), "connected", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    };
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {

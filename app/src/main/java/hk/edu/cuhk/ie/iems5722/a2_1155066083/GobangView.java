@@ -13,6 +13,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Looper;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -34,6 +35,14 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
+import android.os.Handler;
+import android.os.Message;
+
+import hk.edu.cuhk.ie.iems5722.a2_1155066083.GobangActivity;
 
 /**
  * Created by tanshen on 2016/4/23.
@@ -70,8 +79,60 @@ public class GobangView extends SurfaceView implements Params,
     private float mTitleIndex_x = 0;
     private float mTitleIndex_y = 0;
 
+    public static android.os.Handler UIHandler = new android.os.Handler(Looper.getMainLooper());
+//    private Socket socket;
+//    {
+//        try {
+//            socket = IO.socket("http://52.196.31.83");
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
+    private static final String TAG = "ClientSocketIO";
+
+//    private class MainHandler extends Handler {
+//        @Override
+//        public void handleMessage(Message msg) {
+//            try {
+//                JSONObject data = new JSONObject(msg.toString());
+//                String id = data.getString("id");
+//                String var = data.getString("var");
+//                int tmp = Integer.parseInt(id);
+//                final int x = (tmp-1) %  9;
+//                final int y = (tmp-1) / 9;
+//                if (mCampTurn == CAMP_HERO) {
+//                    mGameMap[y][x] = CAMP_HERO;
+//                    if (CheckPiecesMeet(CAMP_HERO)){
+//                        mCampWinner = R.string.Role_black;
+//                        setGameState(GS_END);
+//                    }else {
+//                        mCampTurn = CAMP_ENEMY;
+//                    }
+//                }
+//                else{
+//                    mGameMap[y][x] = CAMP_ENEMY;
+//                    if (CheckPiecesMeet(CAMP_ENEMY)){
+//                        mCampWinner = R.string.Role_white;
+//                        setGameState(GS_END);
+//                    }else {
+//                        mCampTurn = CAMP_HERO;
+//                    }
+//                }
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
+//
+//    Handler handler = new MainHandler();
+
     public GobangView(Activity activity, int screenWidth, int screenHeight) {
         super(activity);
+
+//        socket.on(Socket.EVENT_CONNECT, onConnectSuccess);
+//        socket.on("get_gobang", getGobangListener);
+//        socket.connect();
+
         sPaint = new Paint();
         sPaint.setAntiAlias(true);
         sResources = getResources();
@@ -95,6 +156,73 @@ public class GobangView extends SurfaceView implements Params,
         mTitleIndex_y = (float) (mTitleSpace / 2);
         setGameState(GS_GAME);
     }
+
+//    private Emitter.Listener getGobangListener = new Emitter.Listener() {
+//        @Override
+//        public void call(Object... args) {
+//            GobangActivity.runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+////                    textView.setText("Connected!");
+//                }
+//            });
+//            UIHandler.post(new Runnable() {
+//                @Override
+//                public void run() {
+//                    try {
+//                        JSONObject data = new JSONObject((String) args[0]);
+//                        String id = data.getString("id");
+//                        String var = data.getString("var");
+//                        int tmp = Integer.parseInt(id);
+//                        final int x = (tmp-1) %  9;
+//                        final int y = (tmp-1) / 9;
+//                        if (mCampTurn == CAMP_HERO) {
+//                            mGameMap[y][x] = CAMP_HERO;
+//                            if (CheckPiecesMeet(CAMP_HERO)){
+//                                mCampWinner = R.string.Role_black;
+//                                setGameState(GS_END);
+//                            }else {
+//                                mCampTurn = CAMP_ENEMY;
+//                            }
+//                        }
+//                        else{
+//                            mGameMap[y][x] = CAMP_ENEMY;
+//                            if (CheckPiecesMeet(CAMP_ENEMY)){
+//                                mCampWinner = R.string.Role_white;
+//                                setGameState(GS_END);
+//                            }else {
+//                                mCampTurn = CAMP_HERO;
+//                            }
+//                        }
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                }
+//            });
+//
+//
+//        }
+//    };
+
+    private Emitter.Listener onConnectSuccess = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    Log.d(TAG, "From: " + "connected!");
+//                    Toast.makeText(getApplicationContext(), "connected", Toast.LENGTH_SHORT).show();
+//                }
+//            });
+            UIHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Log.d(TAG, "From: " + "connected!");
+                }
+            });
+        }
+    };
 
     public static void init(Activity mActivity, int screenWidth,
                             int screenHeight) {
