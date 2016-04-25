@@ -51,35 +51,6 @@ public class GobangView extends SurfaceView implements Params,
         SurfaceHolder.Callback, Runnable {
 
     public static final String BASE_URL = "http://52.196.31.83/iems5722";
-    public static Paint sPaint = null;
-    public static Canvas sCanvas = null;
-    public static Resources sResources = null;
-    static GobangView sInstance = null;
-    public static int[][] mGameMap = null;
-    public static int mCampTurn = 0;
-    public static int mCampWinner = 0;
-    // 控制循环
-    boolean mbLoop = false;
-    // 定义SurfaceHolder对象
-    SurfaceHolder mSurfaceHolder = null;
-    Bitmap bitmapBg = null;
-    Bitmap mBlack = null;
-    Bitmap mWhite = null;
-    Context mContext = null;
-    private static int mGameState = 0;
-    private int mScreenWidth = 0;
-    private int mScreenHeight = 0;
-    private static int mMapHeightLengh = 0;
-    private static int mMapWidthLengh = 0;
-    public static int mMapIndexX = 0;
-    public static int mMapIndexY = 0;
-    private float mTitleSpace = 0;
-    private float mTitleSpacey = 0;
-    private int mTitleHeight = 0;
-    private float mTitleIndex_x = 0;
-    private float mTitleIndex_y = 0;
-
-    public static android.os.Handler UIHandler = new android.os.Handler(Looper.getMainLooper());
 //    private Socket socket;
 //    {
 //        try {
@@ -89,6 +60,34 @@ public class GobangView extends SurfaceView implements Params,
 //        }
 //    }
     private static final String TAG = "ClientSocketIO";
+    public static Paint sPaint = null;
+    public static Canvas sCanvas = null;
+    public static Resources sResources = null;
+    public static int[][] mGameMap = null;
+    public static int mCampTurn = 0;
+    public static int mGameState = 0;
+    public static int mCampWinner = 0;
+    public static int mMapIndexX = 0;
+    public static int mMapIndexY = 0;
+    public static android.os.Handler UIHandler = new android.os.Handler(Looper.getMainLooper());
+    static GobangView sInstance = null;
+    private static int mMapHeightLengh = 0;
+    private static int mMapWidthLengh = 0;
+    // 控制循环
+    boolean mbLoop = false;
+    // 定义SurfaceHolder对象
+    SurfaceHolder mSurfaceHolder = null;
+    Bitmap bitmapBg = null;
+    Bitmap mBlack = null;
+    Bitmap mWhite = null;
+    Context mContext = null;
+    private int mScreenWidth = 0;
+    private int mScreenHeight = 0;
+    private float mTitleSpace = 0;
+    private float mTitleSpacey = 0;
+    private int mTitleHeight = 0;
+    private float mTitleIndex_x = 0;
+    private float mTitleIndex_y = 0;
 
 //    private class MainHandler extends Handler {
 //        @Override
@@ -125,37 +124,24 @@ public class GobangView extends SurfaceView implements Params,
 //    }
 //
 //    Handler handler = new MainHandler();
-
-    public GobangView(Activity activity, int screenWidth, int screenHeight) {
-        super(activity);
-
-//        socket.on(Socket.EVENT_CONNECT, onConnectSuccess);
-//        socket.on("get_gobang", getGobangListener);
-//        socket.connect();
-
-        sPaint = new Paint();
-        sPaint.setAntiAlias(true);
-        sResources = getResources();
-        mContext = activity;
-        mScreenWidth = screenWidth;
-        mScreenHeight = screenHeight;
-        mSurfaceHolder = this.getHolder();
-        mSurfaceHolder.addCallback(this);
-        setFocusable(true);
-        mbLoop = true;
-        bitmapBg = CreatMatrixBitmap(R.drawable.status, mScreenWidth,
-                mScreenHeight);
-        mBlack = BitmapFactory.decodeResource(GobangView.sResources,
-                R.drawable.ai);
-        mWhite = BitmapFactory.decodeResource(GobangView.sResources,
-                R.drawable.human);
-        mTitleSpace = (float) mScreenWidth / CHESS_WIDTH;
-        mTitleSpacey = mTitleSpace + 13;
-        mTitleHeight = mScreenHeight / 3;
-        mTitleIndex_x = (float) (mTitleSpace / 2);
-        mTitleIndex_y = (float) (mTitleSpace / 2);
-        setGameState(GS_GAME);
-    }
+    private Emitter.Listener onConnectSuccess = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    Log.d(TAG, "From: " + "connected!");
+//                    Toast.makeText(getApplicationContext(), "connected", Toast.LENGTH_SHORT).show();
+//                }
+//            });
+            UIHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Log.d(TAG, "From: " + "connected!");
+                }
+            });
+        }
+    };
 
 //    private Emitter.Listener getGobangListener = new Emitter.Listener() {
 //        @Override
@@ -205,24 +191,36 @@ public class GobangView extends SurfaceView implements Params,
 //        }
 //    };
 
-    private Emitter.Listener onConnectSuccess = new Emitter.Listener() {
-        @Override
-        public void call(Object... args) {
-//            runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    Log.d(TAG, "From: " + "connected!");
-//                    Toast.makeText(getApplicationContext(), "connected", Toast.LENGTH_SHORT).show();
-//                }
-//            });
-            UIHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Log.d(TAG, "From: " + "connected!");
-                }
-            });
-        }
-    };
+    public GobangView(Activity activity, int screenWidth, int screenHeight) {
+        super(activity);
+
+//        socket.on(Socket.EVENT_CONNECT, onConnectSuccess);
+//        socket.on("get_gobang", getGobangListener);
+//        socket.connect();
+
+        sPaint = new Paint();
+        sPaint.setAntiAlias(true);
+        sResources = getResources();
+        mContext = activity;
+        mScreenWidth = screenWidth;
+        mScreenHeight = screenHeight;
+        mSurfaceHolder = this.getHolder();
+        mSurfaceHolder.addCallback(this);
+        setFocusable(true);
+        mbLoop = true;
+        bitmapBg = CreatMatrixBitmap(R.drawable.status, mScreenWidth,
+                mScreenHeight);
+        mBlack = BitmapFactory.decodeResource(GobangView.sResources,
+                R.drawable.ai);
+        mWhite = BitmapFactory.decodeResource(GobangView.sResources,
+                R.drawable.human);
+        mTitleSpace = (float) mScreenWidth / CHESS_WIDTH;
+        mTitleSpacey = mTitleSpace + 13;
+        mTitleHeight = mScreenHeight / 3;
+        mTitleIndex_x = (float) (mTitleSpace / 2);
+        mTitleIndex_y = (float) (mTitleSpace / 2);
+        setGameState(GS_GAME);
+    }
 
     public static void init(Activity mActivity, int screenWidth,
                             int screenHeight) {
@@ -245,77 +243,6 @@ public class GobangView extends SurfaceView implements Params,
                 mCampTurn = CAMP_HERO;
                 break;
         }
-    }
-    protected void Draw() {
-        sCanvas = mSurfaceHolder.lockCanvas();
-        if (mSurfaceHolder == null || sCanvas == null) {
-            return;
-        }
-        RenderGame();
-        mSurfaceHolder.unlockCanvasAndPost(sCanvas);
-    }
-
-    private void RenderGame() {
-        switch (mGameState) {
-            case GS_GAME:
-                DrawRect(Color.WHITE, 0, 0, mScreenWidth, mScreenHeight);
-                RenderMap();
-                break;
-            case GS_END:
-                RenderMap();
-                DrawRect(Color.RED, mScreenWidth/5, mScreenHeight/8, 4*mScreenWidth/5, mScreenHeight/3);
-                DrawString(Color.WHITE, sResources.getString(mCampWinner)
-                        + "胜利 点击继续游戏", 50, 50);
-
-                break;
-        }
-
-    }
-
-    private void RenderMap() {
-        int i, j;
-        DrawImage(bitmapBg, 0, 0, 0);
-
-        for (i = 0; i < mMapHeightLengh; i++) {
-            for (j = 0; j < mMapWidthLengh; j++) {
-                int CampID = mGameMap[i][j];
-                float x = (j * mTitleSpace) + mTitleIndex_x;
-                float y = (i * mTitleSpacey) + mTitleHeight + mTitleIndex_y;
-                if (CampID == CAMP_HERO) {
-                    DrawImage(mBlack, x, y, ALIGN_VCENTER | ALIGN_HCENTER);
-                } else if (CampID == CAMP_ENEMY) {
-                    DrawImage(mWhite, x, y, ALIGN_VCENTER | ALIGN_HCENTER);
-                }
-            }
-        }
-
-    }
-
-    private void DrawRect(int color, int x, int y, int width, int height) {
-        sPaint.setColor(color);
-        sCanvas.clipRect(x, y, width, height);
-        sCanvas.drawRect(x, y, width, height, sPaint);
-    }
-
-    private void DrawString(int color, String str, int x, int y) {
-        sPaint.setColor(color);
-        sCanvas.drawText(str, x, y, sPaint);
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        int x = (int) event.getX();
-        int y = (int) event.getY();
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                UpdateTouchEvent(x, y);
-                break;
-            case MotionEvent.ACTION_MOVE:
-                break;
-            case MotionEvent.ACTION_UP:
-                break;
-        }
-        return super.onTouchEvent(event);
     }
 
     public static boolean CheckPiecesMeet(int Camp) {
@@ -406,6 +333,94 @@ public class GobangView extends SurfaceView implements Params,
             }
         }
         return false;
+    }
+
+    public static void sendClear(ItemClear item){
+        Map<String, String> paramsMap = new HashMap<>();
+        paramsMap.put("winner", item.winner);
+        PostMessageTask postClearTask = new PostMessageTask(paramsMap);
+        postClearTask.execute(BASE_URL + "/send_clear");
+
+    }
+
+    public static void sendWinner(ItemClear item) {
+        Map<String, String> paramsMap = new HashMap<>();
+        paramsMap.put("winner", item.winner);
+        PostMessageTask postClearTask = new PostMessageTask(paramsMap);
+        postClearTask.execute(BASE_URL + "/send_winner");
+    }
+
+    protected void Draw() {
+        sCanvas = mSurfaceHolder.lockCanvas();
+        if (mSurfaceHolder == null || sCanvas == null) {
+            return;
+        }
+        RenderGame();
+        mSurfaceHolder.unlockCanvasAndPost(sCanvas);
+    }
+
+    private void RenderGame() {
+        switch (mGameState) {
+            case GS_GAME:
+                DrawRect(Color.WHITE, 0, 0, mScreenWidth, mScreenHeight);
+                RenderMap();
+                break;
+            case GS_END:
+                RenderMap();
+                DrawRect(Color.RED, mScreenWidth / 5, mScreenHeight / 8, 4 * mScreenWidth / 5, mScreenHeight / 3);
+                DrawString(Color.WHITE, sResources.getString(mCampWinner)
+                        + "胜利 点击继续游戏", 50, 50);
+                Log.d(TAG,"winner"+ mCampWinner);
+
+                break;
+        }
+
+    }
+
+    private void RenderMap() {
+        int i, j;
+        DrawImage(bitmapBg, 0, 0, 0);
+
+        for (i = 0; i < mMapHeightLengh; i++) {
+            for (j = 0; j < mMapWidthLengh; j++) {
+                int CampID = mGameMap[i][j];
+                float x = (j * mTitleSpace) + mTitleIndex_x;
+                float y = (i * mTitleSpacey) + mTitleHeight + mTitleIndex_y;
+                if (CampID == CAMP_HERO) {
+                    DrawImage(mBlack, x, y, ALIGN_VCENTER | ALIGN_HCENTER);
+                } else if (CampID == CAMP_ENEMY) {
+                    DrawImage(mWhite, x, y, ALIGN_VCENTER | ALIGN_HCENTER);
+                }
+            }
+        }
+
+    }
+
+    private void DrawRect(int color, int x, int y, int width, int height) {
+        sPaint.setColor(color);
+        sCanvas.clipRect(x, y, width, height);
+        sCanvas.drawRect(x, y, width, height, sPaint);
+    }
+
+    private void DrawString(int color, String str, int x, int y) {
+        sPaint.setColor(color);
+        sCanvas.drawText(str, x, y, sPaint);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        int x = (int) event.getX();
+        int y = (int) event.getY();
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                UpdateTouchEvent(x, y);
+                break;
+            case MotionEvent.ACTION_MOVE:
+                break;
+            case MotionEvent.ACTION_UP:
+                break;
+        }
+        return super.onTouchEvent(event);
     }
 
     private void UpdateTouchEvent(int x, int y) {
@@ -570,99 +585,10 @@ public class GobangView extends SurfaceView implements Params,
 //        }
     }
 
-
-    private class PostMessageTask extends AsyncTask<String, Void, String> {
+    private static class PostMessageTask extends AsyncTask<String, Void, String> {
         private Map<String, String> paramsMap;
 
         public PostMessageTask(Map<String, String> paramsMap){
-            this.paramsMap = paramsMap;
-        }
-
-        @Override
-        protected String doInBackground(String... urls){
-            try {
-                return uploadUrl(urls[0], paramsMap);
-            } catch (IOException e) {
-                return "Unable to retrieve web page. URL may be invalid.";
-            }
-        }
-
-        protected void onPostExecute(String result){
-            try {
-                JSONObject json = new JSONObject(result);
-                String status = json.getString("status");
-                if (status.equals("ERROR")){
-//                    Toast.makeText(getApplicationContext(), "Cannot post the message!", Toast.LENGTH_SHORT).show();
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-        private String uploadUrl(String myurl, final Map<String, String> paramsMap) throws IOException{
-            InputStream is = null;
-            try {
-                URL url = new URL(myurl);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setReadTimeout(15000);
-                conn.setConnectTimeout(15000);
-                conn.setRequestMethod("POST");
-                conn.setDoInput(true);
-                conn.setDoOutput(true);
-
-                OutputStream os = conn.getOutputStream();
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-
-                Uri.Builder builder = new Uri.Builder();
-                for (String key : paramsMap.keySet()){
-                    builder.appendQueryParameter(key, paramsMap.get(key));
-                }
-                String query = builder.build().getEncodedQuery();
-
-                writer.write(query);
-                writer.flush();
-                writer.close();
-                os.close();
-
-                int responseCode = conn.getResponseCode();
-                String results = "";
-                is = conn.getInputStream();
-                if (responseCode == HttpURLConnection.HTTP_OK){
-                    String line;
-                    BufferedReader br = new BufferedReader( new InputStreamReader(is));
-                    while ((line = br.readLine()) != null) {
-                        results += line;
-                    }
-                }
-                return results;
-            } catch (Exception e) {
-                e.printStackTrace();
-                return "";
-            } finally {
-                if (is != null){
-                    is.close();
-                }
-            }
-        }
-    }
-    public static void sendClear(ItemClear item){
-        Map<String, String> paramsMap = new HashMap<>();
-        paramsMap.put("winner", item.winner);
-        PostClearTask postClearTask = new PostClearTask(paramsMap);
-        postClearTask.execute(BASE_URL + "/send_clear");
-
-//        if (networkInfo != null && networkInfo.isConnected()){
-//            postMessageTask.execute(BASE_URL + "/send_gobang");
-//        }
-//        else {
-//            Toast.makeText(getApplicationContext(), "No network connection available.", Toast.LENGTH_SHORT).show();
-//        }
-    }
-
-
-    private static class PostClearTask extends AsyncTask<String, Void, String> {
-        private Map<String, String> paramsMap;
-        public PostClearTask(Map<String, String> paramsMap){
             this.paramsMap = paramsMap;
         }
 
