@@ -26,7 +26,7 @@ public class GobangActivity extends AppCompatActivity {
     private Socket socket;
     {
         try {
-            socket = IO.socket("http://52.196.31.83");
+            socket = IO.socket("http://52.196.31.83:8000");
         } catch (Exception e) {
             e.printStackTrace();
         }
