@@ -37,8 +37,8 @@ public class GobangActivity extends AppCompatActivity {
                         int tmp = Integer.parseInt(id);
                         final int x = (tmp-1) %  9;
                         final int y = (tmp-1) / 9;
-
-                        if (GobangView.mCampTurn == GobangView.CAMP_HERO) {
+                        int campTurn = Integer.parseInt(var);
+                        if (campTurn == GobangView.CAMP_HERO) {
                             GobangView.mGameMap[y][x] = GobangView.CAMP_HERO;
                             if (GobangView.CheckPiecesMeet(GobangView.CAMP_HERO)){//HERO win
                                 GobangView.mCampWinner = R.string.Role_black;
