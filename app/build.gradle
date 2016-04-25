@@ -26,6 +26,10 @@ dependencies {
     compile 'com.android.support:design:23.1.1'
     compile 'com.squareup.okhttp:okhttp:2.4.0'
     compile 'com.squareup.okio:okio:1.5.0'
+    compile ('io.socket:socket.io-client:0.7.0') {
+        // excluding org.json which is provided by Android
+        exclude group: 'org.json', module: 'json'
+    }
 }
 dependencies {
     compile "com.google.android.gms:play-services:8.3.0"

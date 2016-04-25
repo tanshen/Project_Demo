@@ -38,34 +38,34 @@ public class MyGcmListenerService extends GcmListenerService {
         String var = data.getString("var");
         Log.d(TAG, "From: " + id);
         Log.d(TAG, "Message: " + var);
-        int tmp = Integer.parseInt(id);
-        final int x = (tmp-1) %  9;
-        final int y = (tmp-1) / 9;
+//        int tmp = Integer.parseInt(id);
+//        final int x = (tmp-1) %  9;
+//        final int y = (tmp-1) / 9;
 
-        UIHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (GobangView.mCampTurn == GobangView.CAMP_HERO) {
-                    GobangView.mGameMap[y][x] = GobangView.CAMP_HERO;
-                    if (GobangView.CheckPiecesMeet(GobangView.CAMP_HERO)){
-                        GobangView.mCampWinner = R.string.Role_black;
-                        GobangView.setGameState(GobangView.GS_END);
-                    }else {
-                        GobangView.mCampTurn = GobangView.CAMP_ENEMY;
-                    }
-                }
-                else{
-                    GobangView.mGameMap[y][x] = GobangView.CAMP_ENEMY;
-                    if (GobangView.CheckPiecesMeet(GobangView.CAMP_ENEMY)){
-                        GobangView.mCampWinner = R.string.Role_white;
-                        GobangView.setGameState(GobangView.GS_END);
-                    }else {
-                        GobangView.mCampTurn = GobangView.CAMP_HERO;
-                    }
-                }
-
-            }
-        });
+//        UIHandler.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                if (GobangView.mCampTurn == GobangView.CAMP_HERO) {
+//                    GobangView.mGameMap[y][x] = GobangView.CAMP_HERO;
+//                    if (GobangView.CheckPiecesMeet(GobangView.CAMP_HERO)){
+//                        GobangView.mCampWinner = R.string.Role_black;
+//                        GobangView.setGameState(GobangView.GS_END);
+//                    }else {
+//                        GobangView.mCampTurn = GobangView.CAMP_ENEMY;
+//                    }
+//                }
+//                else{
+//                    GobangView.mGameMap[y][x] = GobangView.CAMP_ENEMY;
+//                    if (GobangView.CheckPiecesMeet(GobangView.CAMP_ENEMY)){
+//                        GobangView.mCampWinner = R.string.Role_white;
+//                        GobangView.setGameState(GobangView.GS_END);
+//                    }else {
+//                        GobangView.mCampTurn = GobangView.CAMP_HERO;
+//                    }
+//                }
+//
+//            }
+//        });
 
         if (from.startsWith("/topics/")) {
             // message received from some topic.
@@ -85,7 +85,7 @@ public class MyGcmListenerService extends GcmListenerService {
          * In some cases it may be useful to show a notification indicating to the user
          * that a message was received.
          */
-        sendNotification(id,var);
+//        sendNotification(id,var);
         // [END_EXCLUDE]
     }
     // [END receive_message]
