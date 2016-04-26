@@ -70,9 +70,9 @@ public class GobangView extends SurfaceView implements Params,
     public static int mMapIndexX = 0;
     public static int mMapIndexY = 0;
     public static android.os.Handler UIHandler = new android.os.Handler(Looper.getMainLooper());
+    public static int mMapHeightLengh = CHESS_HEIGHT;
+    public static int mMapWidthLengh = CHESS_WIDTH;
     static GobangView sInstance = null;
-    private static int mMapHeightLengh = 0;
-    private static int mMapWidthLengh = 0;
     // 控制循环
     boolean mbLoop = false;
     // 定义SurfaceHolder对象
@@ -83,57 +83,14 @@ public class GobangView extends SurfaceView implements Params,
     Context mContext = null;
     private int mScreenWidth = 0;
     private int mScreenHeight = 0;
-    private float mTitleSpace = 0;
-    private float mTitleSpacey = 0;
+    private float mTitleSpaceX = 0;
+    private float mTitleSpaceY = 0;
     private int mTitleHeight = 0;
     private float mTitleIndex_x = 0;
     private float mTitleIndex_y = 0;
-
-//    private class MainHandler extends Handler {
-//        @Override
-//        public void handleMessage(Message msg) {
-//            try {
-//                JSONObject data = new JSONObject(msg.toString());
-//                String id = data.getString("id");
-//                String var = data.getString("var");
-//                int tmp = Integer.parseInt(id);
-//                final int x = (tmp-1) %  9;
-//                final int y = (tmp-1) / 9;
-//                if (mCampTurn == CAMP_HERO) {
-//                    mGameMap[y][x] = CAMP_HERO;
-//                    if (CheckPiecesMeet(CAMP_HERO)){
-//                        mCampWinner = R.string.Role_black;
-//                        setGameState(GS_END);
-//                    }else {
-//                        mCampTurn = CAMP_ENEMY;
-//                    }
-//                }
-//                else{
-//                    mGameMap[y][x] = CAMP_ENEMY;
-//                    if (CheckPiecesMeet(CAMP_ENEMY)){
-//                        mCampWinner = R.string.Role_white;
-//                        setGameState(GS_END);
-//                    }else {
-//                        mCampTurn = CAMP_HERO;
-//                    }
-//                }
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
-//
-//    Handler handler = new MainHandler();
     private Emitter.Listener onConnectSuccess = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
-//            runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    Log.d(TAG, "From: " + "connected!");
-//                    Toast.makeText(getApplicationContext(), "connected", Toast.LENGTH_SHORT).show();
-//                }
-//            });
             UIHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -142,54 +99,6 @@ public class GobangView extends SurfaceView implements Params,
             });
         }
     };
-
-//    private Emitter.Listener getGobangListener = new Emitter.Listener() {
-//        @Override
-//        public void call(Object... args) {
-//            GobangActivity.runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-////                    textView.setText("Connected!");
-//                }
-//            });
-//            UIHandler.post(new Runnable() {
-//                @Override
-//                public void run() {
-//                    try {
-//                        JSONObject data = new JSONObject((String) args[0]);
-//                        String id = data.getString("id");
-//                        String var = data.getString("var");
-//                        int tmp = Integer.parseInt(id);
-//                        final int x = (tmp-1) %  9;
-//                        final int y = (tmp-1) / 9;
-//                        if (mCampTurn == CAMP_HERO) {
-//                            mGameMap[y][x] = CAMP_HERO;
-//                            if (CheckPiecesMeet(CAMP_HERO)){
-//                                mCampWinner = R.string.Role_black;
-//                                setGameState(GS_END);
-//                            }else {
-//                                mCampTurn = CAMP_ENEMY;
-//                            }
-//                        }
-//                        else{
-//                            mGameMap[y][x] = CAMP_ENEMY;
-//                            if (CheckPiecesMeet(CAMP_ENEMY)){
-//                                mCampWinner = R.string.Role_white;
-//                                setGameState(GS_END);
-//                            }else {
-//                                mCampTurn = CAMP_HERO;
-//                            }
-//                        }
-//                    } catch (JSONException e) {
-//                        e.printStackTrace();
-//                    }
-//
-//                }
-//            });
-//
-//
-//        }
-//    };
 
     public GobangView(Activity activity, int screenWidth, int screenHeight) {
         super(activity);
@@ -214,11 +123,11 @@ public class GobangView extends SurfaceView implements Params,
                 R.drawable.ai);
         mWhite = BitmapFactory.decodeResource(GobangView.sResources,
                 R.drawable.human);
-        mTitleSpace = (float) mScreenWidth / CHESS_WIDTH;
-        mTitleSpacey = mTitleSpace + 13;
         mTitleHeight = mScreenHeight / 3;
-        mTitleIndex_x = (float) (mTitleSpace / 2);
-        mTitleIndex_y = (float) (mTitleSpace / 2);
+        mTitleSpaceX = (float) mScreenWidth / CHESS_WIDTH;
+        mTitleSpaceY = (float) 2* mTitleHeight / CHESS_HEIGHT;
+        mTitleIndex_x = (float) (mTitleSpaceX / 2);
+        mTitleIndex_y = (float) (mTitleSpaceY / 2);
         setGameState(GS_GAME);
     }
 
@@ -236,11 +145,11 @@ public class GobangView extends SurfaceView implements Params,
         switch (mGameState) {
             case GS_GAME:
                 mGameMap = new int[CHESS_HEIGHT][CHESS_WIDTH];
+                mCampTurn = CAMP_HERO;
                 ItemClear item = new ItemClear(mCampWinner + "");
                 sendClear(item);
-                mMapHeightLengh = mGameMap.length;
-                mMapWidthLengh = mGameMap[0].length;
-                mCampTurn = CAMP_HERO;
+                ItemClear itemState = new ItemClear(mGameState + "");
+                sendState(itemState);
                 break;
         }
     }
@@ -350,6 +259,13 @@ public class GobangView extends SurfaceView implements Params,
         postClearTask.execute(BASE_URL + "/send_winner");
     }
 
+    public static void sendState(ItemClear item){
+        Map<String, String> paramsMap = new HashMap<>();
+        paramsMap.put("state", item.winner);
+        PostMessageTask postClearTask = new PostMessageTask(paramsMap);
+        postClearTask.execute(BASE_URL + "/send_state");
+    }
+
     protected void Draw() {
         sCanvas = mSurfaceHolder.lockCanvas();
         if (mSurfaceHolder == null || sCanvas == null) {
@@ -384,8 +300,8 @@ public class GobangView extends SurfaceView implements Params,
         for (i = 0; i < mMapHeightLengh; i++) {
             for (j = 0; j < mMapWidthLengh; j++) {
                 int CampID = mGameMap[i][j];
-                float x = (j * mTitleSpace) + mTitleIndex_x;
-                float y = (i * mTitleSpacey) + mTitleHeight + mTitleIndex_y;
+                float x = (j * mTitleSpaceX) + mTitleIndex_x;
+                float y = (i * mTitleSpaceY) + mTitleHeight + mTitleIndex_y;
                 if (CampID == CAMP_HERO) {
                     DrawImage(mBlack, x, y, ALIGN_VCENTER | ALIGN_HCENTER);
                 } else if (CampID == CAMP_ENEMY) {
@@ -426,10 +342,9 @@ public class GobangView extends SurfaceView implements Params,
     private void UpdateTouchEvent(int x, int y) {
         switch (mGameState) {
             case GS_GAME:
-
                 if (x > 0 && y > mTitleHeight) {
-                    mMapIndexX = (int) (x / mTitleSpace);
-                    mMapIndexY = (int) ((y - mTitleHeight) / mTitleSpacey);
+                    mMapIndexX = (int) (x / mTitleSpaceX);
+                    mMapIndexY = (int) ((y - mTitleHeight) / mTitleSpaceY);
 
                     if (mMapIndexX > mMapWidthLengh) {
                         mMapIndexX = mMapWidthLengh;
@@ -450,14 +365,13 @@ public class GobangView extends SurfaceView implements Params,
                         ItemSend item = new ItemSend(mMapIndexX+"", mMapIndexY+"", mCampTurn+"");
                         sendMessage(item);
                     }
-
                 }
                 break;
             case GS_END:
                 setGameState(GS_GAME);
                 break;
-
         }
+
     }
 
     public boolean isCheckInvite(String body) {

@@ -42,9 +42,10 @@ public class GobangActivity extends AppCompatActivity {
                             GobangView.mGameMap[y][x] = GobangView.CAMP_HERO;
                             if (GobangView.CheckPiecesMeet(GobangView.CAMP_HERO)){//HERO win
                                 GobangView.mCampWinner = R.string.Role_black;
-//                                GobangView.setGameState(GobangView.GS_END);
                                 GobangView.mGameState = GobangView.GS_END;
                                 GobangView.mCampWinner = GobangView.CAMP_HERO;
+                                ItemClear itemState = new ItemClear(GobangView.mGameState + "");
+                                GobangView.sendState(itemState);
                             }else {
                                 GobangView.mCampTurn = GobangView.CAMP_ENEMY;
                             }
@@ -53,17 +54,18 @@ public class GobangActivity extends AppCompatActivity {
                             GobangView.mGameMap[y][x] = GobangView.CAMP_ENEMY;
                             if (GobangView.CheckPiecesMeet(GobangView.CAMP_ENEMY)){
                                 GobangView.mCampWinner = R.string.Role_white;
-//                                GobangView.setGameState(GobangView.GS_END);
                                 GobangView.mGameState = GobangView.GS_END;
                                 GobangView.mCampWinner = GobangView.CAMP_ENEMY;
+                                ItemClear itemState = new ItemClear(GobangView.mGameState + "");
+                                GobangView.sendState(itemState);
                             }else {
                                 GobangView.mCampTurn = GobangView.CAMP_HERO;
                             }
                         }
+
                         if(GobangView.mCampWinner != 0) {
                             ItemClear item = new ItemClear(GobangView.mCampWinner + "");
                             GobangView.sendWinner(item);
-
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -83,6 +85,26 @@ public class GobangActivity extends AppCompatActivity {
                         data = new JSONObject((String) args[0]);
                         String clear_winner = data.getString("clear_winner");
                         GobangView.mCampWinner = Integer.parseInt(clear_winner);
+                        GobangView.mGameMap = new int[GobangView.CHESS_HEIGHT][GobangView.CHESS_WIDTH];
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            });
+        }
+    };
+    private Emitter.Listener getGobangStateListener = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject data = null;
+                    try {
+                        data = new JSONObject((String) args[0]);
+                        String state = data.getString("state");
+                        GobangView.mGameState = Integer.parseInt(state);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -155,6 +177,7 @@ public class GobangActivity extends AppCompatActivity {
         socket.on(Socket.EVENT_CONNECT, onConnectSuccess);
         socket.on("get_gobang", getGobangListener);
         socket.on("get_gobang_clear", getGobangClearListener);
+        socket.on("get_gobang_state", getGobangStateListener);
         socket.on("update", onTextUpdate);
         socket.connect();
     }
