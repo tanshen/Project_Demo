@@ -35,6 +35,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ArrayList;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -60,6 +61,7 @@ public class GobangView extends SurfaceView implements Params,
 //        }
 //    }
     private static final String TAG = "ClientSocketIO";
+    private static final String TAG2 = "Parameters";
     public static Paint sPaint = null;
     public static Canvas sCanvas = null;
     public static Resources sResources = null;
@@ -70,70 +72,32 @@ public class GobangView extends SurfaceView implements Params,
     public static int mMapIndexX = 0;
     public static int mMapIndexY = 0;
     public static android.os.Handler UIHandler = new android.os.Handler(Looper.getMainLooper());
+    public static int mMapHeightLengh = CHESS_HEIGHT;
+    public static int mMapWidthLengh = CHESS_WIDTH;
+    public static int[] flag = new int[1];
+    public static int listenFlag;
+    public static ArrayList<Integer> addToFlag = new ArrayList<>();
     static GobangView sInstance = null;
-    private static int mMapHeightLengh = 0;
-    private static int mMapWidthLengh = 0;
     // 控制循环
     boolean mbLoop = false;
     // 定义SurfaceHolder对象
     SurfaceHolder mSurfaceHolder = null;
     Bitmap bitmapBg = null;
+    Bitmap bitmapWin = null;
     Bitmap mBlack = null;
     Bitmap mWhite = null;
     Context mContext = null;
     private int mScreenWidth = 0;
     private int mScreenHeight = 0;
-    private float mTitleSpace = 0;
-    private float mTitleSpacey = 0;
+    private float mTitleSpaceX = 0;
+    private float mTitleSpaceY = 0;
     private int mTitleHeight = 0;
     private float mTitleIndex_x = 0;
     private float mTitleIndex_y = 0;
-
-//    private class MainHandler extends Handler {
-//        @Override
-//        public void handleMessage(Message msg) {
-//            try {
-//                JSONObject data = new JSONObject(msg.toString());
-//                String id = data.getString("id");
-//                String var = data.getString("var");
-//                int tmp = Integer.parseInt(id);
-//                final int x = (tmp-1) %  9;
-//                final int y = (tmp-1) / 9;
-//                if (mCampTurn == CAMP_HERO) {
-//                    mGameMap[y][x] = CAMP_HERO;
-//                    if (CheckPiecesMeet(CAMP_HERO)){
-//                        mCampWinner = R.string.Role_black;
-//                        setGameState(GS_END);
-//                    }else {
-//                        mCampTurn = CAMP_ENEMY;
-//                    }
-//                }
-//                else{
-//                    mGameMap[y][x] = CAMP_ENEMY;
-//                    if (CheckPiecesMeet(CAMP_ENEMY)){
-//                        mCampWinner = R.string.Role_white;
-//                        setGameState(GS_END);
-//                    }else {
-//                        mCampTurn = CAMP_HERO;
-//                    }
-//                }
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
-//
-//    Handler handler = new MainHandler();
+    public static int localNum = 0;
     private Emitter.Listener onConnectSuccess = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
-//            runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    Log.d(TAG, "From: " + "connected!");
-//                    Toast.makeText(getApplicationContext(), "connected", Toast.LENGTH_SHORT).show();
-//                }
-//            });
             UIHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -142,54 +106,6 @@ public class GobangView extends SurfaceView implements Params,
             });
         }
     };
-
-//    private Emitter.Listener getGobangListener = new Emitter.Listener() {
-//        @Override
-//        public void call(Object... args) {
-//            GobangActivity.runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-////                    textView.setText("Connected!");
-//                }
-//            });
-//            UIHandler.post(new Runnable() {
-//                @Override
-//                public void run() {
-//                    try {
-//                        JSONObject data = new JSONObject((String) args[0]);
-//                        String id = data.getString("id");
-//                        String var = data.getString("var");
-//                        int tmp = Integer.parseInt(id);
-//                        final int x = (tmp-1) %  9;
-//                        final int y = (tmp-1) / 9;
-//                        if (mCampTurn == CAMP_HERO) {
-//                            mGameMap[y][x] = CAMP_HERO;
-//                            if (CheckPiecesMeet(CAMP_HERO)){
-//                                mCampWinner = R.string.Role_black;
-//                                setGameState(GS_END);
-//                            }else {
-//                                mCampTurn = CAMP_ENEMY;
-//                            }
-//                        }
-//                        else{
-//                            mGameMap[y][x] = CAMP_ENEMY;
-//                            if (CheckPiecesMeet(CAMP_ENEMY)){
-//                                mCampWinner = R.string.Role_white;
-//                                setGameState(GS_END);
-//                            }else {
-//                                mCampTurn = CAMP_HERO;
-//                            }
-//                        }
-//                    } catch (JSONException e) {
-//                        e.printStackTrace();
-//                    }
-//
-//                }
-//            });
-//
-//
-//        }
-//    };
 
     public GobangView(Activity activity, int screenWidth, int screenHeight) {
         super(activity);
@@ -208,18 +124,18 @@ public class GobangView extends SurfaceView implements Params,
         mSurfaceHolder.addCallback(this);
         setFocusable(true);
         mbLoop = true;
-        bitmapBg = CreatMatrixBitmap(R.drawable.status, mScreenWidth,
-                mScreenHeight);
+        bitmapBg = CreatMatrixBitmap(R.drawable.status, mScreenWidth, mScreenHeight);
+        bitmapWin = CreatMatrixBitmap(R.drawable.gameover, 2*mScreenWidth/3, mScreenHeight/4);
         mBlack = BitmapFactory.decodeResource(GobangView.sResources,
                 R.drawable.ai);
         mWhite = BitmapFactory.decodeResource(GobangView.sResources,
                 R.drawable.human);
-        mTitleSpace = (float) mScreenWidth / CHESS_WIDTH;
-        mTitleSpacey = mTitleSpace + 13;
         mTitleHeight = mScreenHeight / 3;
-        mTitleIndex_x = (float) (mTitleSpace / 2);
-        mTitleIndex_y = (float) (mTitleSpace / 2);
-        setGameState(GS_GAME);
+        mTitleSpaceX = (float) mScreenWidth / CHESS_WIDTH;
+        mTitleSpaceY = (float) 2* mTitleHeight / CHESS_HEIGHT;
+        mTitleIndex_x = (float) (mTitleSpaceX / 2);
+        mTitleIndex_y = (float) (mTitleSpaceY / 2);
+
     }
 
     public static void init(Activity mActivity, int screenWidth,
@@ -235,12 +151,16 @@ public class GobangView extends SurfaceView implements Params,
         mGameState = newState;
         switch (mGameState) {
             case GS_GAME:
-                mGameMap = new int[CHESS_HEIGHT][CHESS_WIDTH];
-                ItemClear item = new ItemClear(mCampWinner + "");
-                sendClear(item);
-                mMapHeightLengh = mGameMap.length;
-                mMapWidthLengh = mGameMap[0].length;
-                mCampTurn = CAMP_HERO;
+                if (GobangView.listenFlag != 11){
+                    mGameMap = new int[CHESS_HEIGHT][CHESS_WIDTH];
+                    mCampTurn = CAMP_HERO;
+                    ItemClear item = new ItemClear(mCampWinner + "");
+                    sendClear(item);
+//                listenFlag = 0;
+//                addToFlag.clear();
+                    ItemClear itemState = new ItemClear(mGameState + "");
+                    sendState(itemState);
+                }
                 break;
         }
     }
@@ -350,6 +270,13 @@ public class GobangView extends SurfaceView implements Params,
         postClearTask.execute(BASE_URL + "/send_winner");
     }
 
+    public static void sendState(ItemClear item){
+        Map<String, String> paramsMap = new HashMap<>();
+        paramsMap.put("state", item.winner);
+        PostMessageTask postClearTask = new PostMessageTask(paramsMap);
+        postClearTask.execute(BASE_URL + "/send_state");
+    }
+
     protected void Draw() {
         sCanvas = mSurfaceHolder.lockCanvas();
         if (mSurfaceHolder == null || sCanvas == null) {
@@ -367,9 +294,7 @@ public class GobangView extends SurfaceView implements Params,
                 break;
             case GS_END:
                 RenderMap();
-                DrawRect(Color.RED, mScreenWidth / 5, mScreenHeight / 8, 4 * mScreenWidth / 5, mScreenHeight / 3);
-//                DrawString(Color.WHITE, sResources.getString(mCampWinner)
-//                        + "胜利 点击继续游戏", 50, 50);
+                DrawImage(bitmapWin, mScreenWidth / 6, mScreenHeight / 3, 0);
                 Log.d(TAG,"winner"+ mCampWinner);
 
                 break;
@@ -384,8 +309,8 @@ public class GobangView extends SurfaceView implements Params,
         for (i = 0; i < mMapHeightLengh; i++) {
             for (j = 0; j < mMapWidthLengh; j++) {
                 int CampID = mGameMap[i][j];
-                float x = (j * mTitleSpace) + mTitleIndex_x;
-                float y = (i * mTitleSpacey) + mTitleHeight + mTitleIndex_y;
+                float x = (j * mTitleSpaceX) + mTitleIndex_x;
+                float y = (i * mTitleSpaceY) + mTitleHeight + mTitleIndex_y;
                 if (CampID == CAMP_HERO) {
                     DrawImage(mBlack, x, y, ALIGN_VCENTER | ALIGN_HCENTER);
                 } else if (CampID == CAMP_ENEMY) {
@@ -426,10 +351,9 @@ public class GobangView extends SurfaceView implements Params,
     private void UpdateTouchEvent(int x, int y) {
         switch (mGameState) {
             case GS_GAME:
-
                 if (x > 0 && y > mTitleHeight) {
-                    mMapIndexX = (int) (x / mTitleSpace);
-                    mMapIndexY = (int) ((y - mTitleHeight) / mTitleSpacey);
+                    mMapIndexX = (int) (x / mTitleSpaceX);
+                    mMapIndexY = (int) ((y - mTitleHeight) / mTitleSpaceY);
 
                     if (mMapIndexX > mMapWidthLengh) {
                         mMapIndexX = mMapWidthLengh;
@@ -448,16 +372,21 @@ public class GobangView extends SurfaceView implements Params,
 
                     if (mGameMap[mMapIndexY][mMapIndexX] == CAMP_DEFAULT) {
                         ItemSend item = new ItemSend(mMapIndexX+"", mMapIndexY+"", mCampTurn+"");
-                        sendMessage(item);
+                        addToFlag.add(mCampTurn-1);
+                        flag[0] = addToFlag.get(0);
+                        Log.d(TAG2, "listenFlag: " + listenFlag);
+                        Log.d(TAG2, "GobangView.flag[0]: " + GobangView.flag[0]);
+                        if (listenFlag == GobangView.flag[0]){
+                            sendMessage(item, flag[0]);
+                        }
                     }
-
                 }
                 break;
             case GS_END:
                 setGameState(GS_GAME);
                 break;
-
         }
+
     }
 
     public boolean isCheckInvite(String body) {
@@ -564,11 +493,12 @@ public class GobangView extends SurfaceView implements Params,
         }
     }
 
-    public void sendMessage(ItemSend item){
+    public void sendMessage(ItemSend item, int flag){
         Map<String, String> paramsMap = new HashMap<>();
         paramsMap.put("x", item.x);
         paramsMap.put("y", item.y);
         paramsMap.put("campTurn", item.campTurn);
+        paramsMap.put("flag", String.valueOf(flag));
 
 //        ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
 //        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();

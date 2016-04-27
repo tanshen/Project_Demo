@@ -12,12 +12,12 @@ public interface Params {
     public static final int ALIGN_BOTTOM = ALIGN_TOP << 5;
 
 
-    public final static int GS_WAIT = 0;
+//    public final static int GS_WAIT = 0;
     public final static int GS_INVITING = 1;
     public final static int GS_COMFIRE = 2;
     public final static int GS_DECLINE = 3;
     public final static int GS_GAME = 4;
-    public final static int GS_END = 5;
+    public final static int GS_END = 0;
     public final static int GS_AWAY = 6;
     public final static int GS_ERROR = 7;
 

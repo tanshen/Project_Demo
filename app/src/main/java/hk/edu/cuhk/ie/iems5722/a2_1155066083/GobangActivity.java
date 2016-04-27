@@ -1,5 +1,10 @@
 package hk.edu.cuhk.ie.iems5722.a2_1155066083;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.app.Activity;
 import android.os.Bundle;
@@ -10,8 +15,21 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -22,7 +40,9 @@ import io.socket.emitter.Emitter;
  */
 public class GobangActivity extends AppCompatActivity {
     private static final String TAG = "ClientSocketIO";
+    public static final String BASE_URL = "http://52.196.31.83/iems5722";
     GobangView gobangView = null;
+
     private Socket socket;
     private Emitter.Listener getGobangListener = new Emitter.Listener() {
         @Override
@@ -34,17 +54,24 @@ public class GobangActivity extends AppCompatActivity {
                         JSONObject data = new JSONObject((String) args[0]);
                         String id = data.getString("id");
                         String var = data.getString("var");
+                        String flagInt = data.getString("flagInt");
+
+                        GobangView.listenFlag = Integer.parseInt(flagInt);
+                        GobangView.addToFlag.add(GobangView.listenFlag);
+                        GobangView.flag[0] = GobangView.addToFlag.get(0);
+
                         int tmp = Integer.parseInt(id);
                         final int x = (tmp-1) %  9;
                         final int y = (tmp-1) / 9;
-
-                        if (GobangView.mCampTurn == GobangView.CAMP_HERO) {
+                        int campTurn = Integer.parseInt(var);
+                        if (campTurn == GobangView.CAMP_HERO) {
                             GobangView.mGameMap[y][x] = GobangView.CAMP_HERO;
                             if (GobangView.CheckPiecesMeet(GobangView.CAMP_HERO)){//HERO win
                                 GobangView.mCampWinner = R.string.Role_black;
-//                                GobangView.setGameState(GobangView.GS_END);
                                 GobangView.mGameState = GobangView.GS_END;
                                 GobangView.mCampWinner = GobangView.CAMP_HERO;
+                                ItemClear itemState = new ItemClear(GobangView.mGameState + "");
+                                GobangView.sendState(itemState);
                             }else {
                                 GobangView.mCampTurn = GobangView.CAMP_ENEMY;
                             }
@@ -53,17 +80,18 @@ public class GobangActivity extends AppCompatActivity {
                             GobangView.mGameMap[y][x] = GobangView.CAMP_ENEMY;
                             if (GobangView.CheckPiecesMeet(GobangView.CAMP_ENEMY)){
                                 GobangView.mCampWinner = R.string.Role_white;
-//                                GobangView.setGameState(GobangView.GS_END);
                                 GobangView.mGameState = GobangView.GS_END;
                                 GobangView.mCampWinner = GobangView.CAMP_ENEMY;
+                                ItemClear itemState = new ItemClear(GobangView.mGameState + "");
+                                GobangView.sendState(itemState);
                             }else {
                                 GobangView.mCampTurn = GobangView.CAMP_HERO;
                             }
                         }
+
                         if(GobangView.mCampWinner != 0) {
                             ItemClear item = new ItemClear(GobangView.mCampWinner + "");
                             GobangView.sendWinner(item);
-
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -82,7 +110,11 @@ public class GobangActivity extends AppCompatActivity {
                     try {
                         data = new JSONObject((String) args[0]);
                         String clear_winner = data.getString("clear_winner");
+                        Log.d(TAG,"clear_winner"+clear_winner);
                         GobangView.mCampWinner = Integer.parseInt(clear_winner);
+                        GobangView.mGameMap = new int[GobangView.CHESS_HEIGHT][GobangView.CHESS_WIDTH];
+                        GobangView.listenFlag = 0;
+                        GobangView.addToFlag.clear();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -91,23 +123,26 @@ public class GobangActivity extends AppCompatActivity {
             });
         }
     };
-    private Emitter.Listener onTextUpdate = new Emitter.Listener() {
+    private Emitter.Listener getGobangStateListener = new Emitter.Listener() {
         @Override
-        public void call(Object... args) {
-            try {
-                JSONObject data = (JSONObject) args[0];
-                final String text = data.getString("text");
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.d(TAG, "From: " + text);
+        public void call(final Object... args) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject data = null;
+                    try {
+                        data = new JSONObject((String) args[0]);
+                        String state = data.getString("state");
+                        GobangView.mGameState = Integer.parseInt(state);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+
+                }
+            });
         }
     };
+
     private Emitter.Listener onConnectSuccess = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
@@ -141,6 +176,9 @@ public class GobangActivity extends AppCompatActivity {
         Display display = getWindowManager().getDefaultDisplay();
         // 现实GobangView
         GobangView.init(this, display.getWidth(), display.getHeight());
+        gobangView = GobangView.getInstance();
+        setContentView(gobangView);
+
         try {
             JSONObject json = new JSONObject();
             json.put("text", "Socket from client!");
@@ -148,19 +186,136 @@ public class GobangActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        gobangView = GobangView.getInstance();
-        setContentView(gobangView);
+//        getInit();
+        if (GobangView.localNum < 2)
+            sendMessage(1);
 //        setContentView(R.layout.activity_main);
 
         socket.on(Socket.EVENT_CONNECT, onConnectSuccess);
         socket.on("get_gobang", getGobangListener);
         socket.on("get_gobang_clear", getGobangClearListener);
-        socket.on("update", onTextUpdate);
+        socket.on("get_gobang_state", getGobangStateListener);
+//        socket.on("updateComing", onTextUpdate);
         socket.connect();
+
+        GobangView.setGameState(GobangView.GS_GAME);
+
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        socket.disconnect();
+        socket.off(Socket.EVENT_CONNECT, onConnectSuccess);
+        socket.off("get_gobang", getGobangListener);
+        socket.off("get_gobang_clear", getGobangClearListener);
+        socket.off("get_gobang_state", getGobangStateListener);
+//        socket.off("update", onTextUpdate);
+        sendMessage(-1);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         return super.onKeyDown(keyCode, event);
+    }
+
+    public void sendMessage(int cnt){
+        Map<String, String> paramsMap = new HashMap<>();
+        paramsMap.put("cnt", String.valueOf(cnt));
+
+//        ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+//        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+        PostMessageTask postMessageTask = new PostMessageTask(paramsMap);
+        postMessageTask.execute(BASE_URL + "/send_onlinecnt");
+
+
+//        if (networkInfo != null && networkInfo.isConnected()){
+//            postMessageTask.execute(BASE_URL + "/send_gobang");
+//        }
+//        else {
+//            Toast.makeText(getApplicationContext(), "No network connection available.", Toast.LENGTH_SHORT).show();
+//        }
+    }
+
+    private static class PostMessageTask extends AsyncTask<String, Void, String> {
+        private Map<String, String> paramsMap;
+
+        public PostMessageTask(Map<String, String> paramsMap){
+            this.paramsMap = paramsMap;
+        }
+
+        @Override
+        protected String doInBackground(String... urls){
+            try {
+                return uploadUrl(urls[0], paramsMap);
+            } catch (IOException e) {
+                return "Unable to retrieve web page. URL may be invalid.";
+            }
+        }
+
+        protected void onPostExecute(String result){
+            try {
+                JSONObject json = new JSONObject(result);
+                String status = json.getString("status");
+                if (status.equals("ERROR")){
+//                    Toast.makeText(getApplicationContext(), "Cannot post the message!", Toast.LENGTH_SHORT).show();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        private String uploadUrl(String myurl, final Map<String, String> paramsMap) throws IOException{
+            InputStream is = null;
+            try {
+                URL url = new URL(myurl);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setReadTimeout(15000);
+                conn.setConnectTimeout(15000);
+                conn.setRequestMethod("POST");
+                conn.setDoInput(true);
+                conn.setDoOutput(true);
+
+                OutputStream os = conn.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+
+                Uri.Builder builder = new Uri.Builder();
+                for (String key : paramsMap.keySet()){
+                    builder.appendQueryParameter(key, paramsMap.get(key));
+                }
+                String query = builder.build().getEncodedQuery();
+
+                writer.write(query);
+                writer.flush();
+                writer.close();
+                os.close();
+
+                int responseCode = conn.getResponseCode();
+                String results = "";
+                is = conn.getInputStream();
+                if (responseCode == HttpURLConnection.HTTP_OK){
+                    String line;
+                    BufferedReader br = new BufferedReader( new InputStreamReader(is));
+                    while ((line = br.readLine()) != null) {
+                        results += line;
+                    }
+                }
+                return results;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return "";
+            } finally {
+                if (is != null){
+                    is.close();
+                }
+            }
+        }
     }
 }
