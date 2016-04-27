@@ -147,10 +147,21 @@ public class GobangActivity extends AppCompatActivity {
             try {
                 JSONObject data = (JSONObject) args[0];
                 final String text = data.getString("text");
+                final String init = data.getString("init");
+                final String onlineCnt = data.getString("onlineCnt");
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         Log.d(TAG, "From: " + text);
+                        Log.d(TAG, "From: " + init);
+                        Log.d(TAG, "From: " + onlineCnt);
+                        if (Integer.parseInt(onlineCnt) < 2){
+                            GobangView.listenFlag = Integer.parseInt(init);
+                            GobangView.localNum = Integer.parseInt(onlineCnt);
+                        } else {
+                            GobangView.listenFlag = 11;
+                        }
+                        Log.d(TAG, "localNum: " + GobangView.localNum);
                     }
                 });
             } catch (Exception e) {
@@ -200,8 +211,7 @@ public class GobangActivity extends AppCompatActivity {
         }
         gobangView = GobangView.getInstance();
         setContentView(gobangView);
-        getInit();
-        Log.d(TAG, "localNum: " + GobangView.localNum);
+//        getInit();
         if (GobangView.localNum < 2)
             sendMessage(1);
 //        setContentView(R.layout.activity_main);
@@ -210,7 +220,7 @@ public class GobangActivity extends AppCompatActivity {
         socket.on("get_gobang", getGobangListener);
         socket.on("get_gobang_clear", getGobangClearListener);
         socket.on("get_gobang_state", getGobangStateListener);
-        socket.on("update", onTextUpdate);
+        socket.on("updateComing", onTextUpdate);
         socket.connect();
     }
 
@@ -236,77 +246,80 @@ public class GobangActivity extends AppCompatActivity {
         return super.onKeyDown(keyCode, event);
     }
 
-    public void getInit(){
-        String stringUrl = BASE_URL + "/get_init";
 
-        ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+//    public void getInit(){
+//        String stringUrl = BASE_URL + "/get_init";
+//
+//        ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+//        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+//
+//        GetMessageTask getMessageTask = new GetMessageTask();
+//        if (networkInfo != null && networkInfo.isConnected()){
+//            getMessageTask.execute(stringUrl);
+//        } else {
+//            Toast.makeText(getApplicationContext(), "No network connection available.", Toast.LENGTH_SHORT).show();
+//        }
+//    }
 
-        GetMessageTask getMessageTask = new GetMessageTask();
-        if (networkInfo != null && networkInfo.isConnected()){
-            getMessageTask.execute(stringUrl);
-        } else {
-            Toast.makeText(getApplicationContext(), "No network connection available.", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private class GetMessageTask extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... urls){
-            try {
-                return downloadUrl(urls[0]);
-            } catch (IOException e) {
-                return "Unable to retrieve web page. URL may be invalid.";
-            }
-        }
-
-        protected void onPostExecute(String result){
-            try {
-                JSONObject json = new JSONObject(result);
-                String init = json.getString("init");
-                String onlineCnt = json.getString("onlineCnt");
-                if (Integer.parseInt(onlineCnt) < 2){
-                    GobangView.listenFlag = Integer.parseInt(init);
-                    GobangView.localNum = Integer.parseInt(onlineCnt);
-                } else {
-                    GobangView.listenFlag = 11;
-                }
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-//            text.setText(currentPage + " : " + totalPage);
-        }
-
-        private String downloadUrl(String myurl) throws IOException{
-            InputStream is = null;
-            try {
-                URL url = new URL(myurl);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setReadTimeout(10000);
-                conn.setConnectTimeout(15000);
-                conn.setRequestMethod("GET");
-                conn.setDoInput(true);
-
-                conn.connect();
-                int responseCode = conn.getResponseCode();
-                String results = "";
-                is = conn.getInputStream();
-                if (responseCode == HttpURLConnection.HTTP_OK){
-                    String line;
-                    BufferedReader br = new BufferedReader( new InputStreamReader(is));
-                    while ((line = br.readLine()) != null) {
-                        results += line;
-                    }
-                }
-                return results;
-            }finally {
-                if (is != null){
-                    is.close();
-                }
-            }
-        }
-    }
+//    private class GetMessageTask extends AsyncTask<String, Void, String> {
+//        @Override
+//        protected String doInBackground(String... urls){
+//            try {
+//                return downloadUrl(urls[0]);
+//            } catch (IOException e) {
+//                return "Unable to retrieve web page. URL may be invalid.";
+//            }
+//        }
+//
+//        protected void onPostExecute(String result){
+//            try {
+//                JSONObject json = new JSONObject(result);
+//                String init = json.getString("init");
+//                String onlineCnt = json.getString("onlineCnt");
+////                Log.d(TAG, "OnlineCnt: " + onlineCnt);
+//                if (Integer.parseInt(onlineCnt) < 2){
+//                    GobangView.listenFlag = Integer.parseInt(init);
+////                    GobangView.localNum = Integer.parseInt(onlineCnt);
+//
+//                } else {
+//                    GobangView.listenFlag = 11;
+//                }
+//
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+////            text.setText(currentPage + " : " + totalPage);
+//        }
+//
+//        private String downloadUrl(String myurl) throws IOException{
+//            InputStream is = null;
+//            try {
+//                URL url = new URL(myurl);
+//                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+//                conn.setReadTimeout(10000);
+//                conn.setConnectTimeout(15000);
+//                conn.setRequestMethod("GET");
+//                conn.setDoInput(true);
+//
+//                conn.connect();
+//                int responseCode = conn.getResponseCode();
+//                String results = "";
+//                is = conn.getInputStream();
+//                if (responseCode == HttpURLConnection.HTTP_OK){
+//                    String line;
+//                    BufferedReader br = new BufferedReader( new InputStreamReader(is));
+//                    while ((line = br.readLine()) != null) {
+//                        results += line;
+//                    }
+//                }
+//                return results;
+//            }finally {
+//                if (is != null){
+//                    is.close();
+//                }
+//            }
+//        }
+//    }
 
     public void sendMessage(int cnt){
         Map<String, String> paramsMap = new HashMap<>();
