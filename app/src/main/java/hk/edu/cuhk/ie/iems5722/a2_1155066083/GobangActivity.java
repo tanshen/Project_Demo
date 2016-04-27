@@ -110,6 +110,7 @@ public class GobangActivity extends AppCompatActivity {
                     try {
                         data = new JSONObject((String) args[0]);
                         String clear_winner = data.getString("clear_winner");
+                        Log.d(TAG,"clear_winner"+clear_winner);
                         GobangView.mCampWinner = Integer.parseInt(clear_winner);
                         GobangView.mGameMap = new int[GobangView.CHESS_HEIGHT][GobangView.CHESS_WIDTH];
                         GobangView.listenFlag = 0;
@@ -141,36 +142,7 @@ public class GobangActivity extends AppCompatActivity {
             });
         }
     };
-    private Emitter.Listener onTextUpdate = new Emitter.Listener() {
-        @Override
-        public void call(Object... args) {
-            try {
-                JSONObject data = (JSONObject) args[0];
-                final String text = data.getString("text");
-                final String init = data.getString("init");
-                final String onlineCnt = data.getString("onlineCnt");
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.d(TAG, "From: " + text);
-                        Log.d(TAG, "init: " + init);
-                        Log.d(TAG, "onlineCnt: " + onlineCnt);
-                        if (Integer.parseInt(onlineCnt) < 2){
-                            GobangView.listenFlag = Integer.parseInt(init);
-                            GobangView.localNum = Integer.parseInt(onlineCnt);
-                        } else {
-                            GobangView.listenFlag = 11;
-                            Toast.makeText(getApplicationContext(), "Already two players, you are watching now!", Toast.LENGTH_SHORT).show();
-                        }
-                        Log.d(TAG, "localNum: " + GobangView.localNum);
-                        Log.d(TAG, "GobangView.listenFlag: " + GobangView.listenFlag);
-                    }
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    };
+
     private Emitter.Listener onConnectSuccess = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
@@ -223,7 +195,7 @@ public class GobangActivity extends AppCompatActivity {
         socket.on("get_gobang", getGobangListener);
         socket.on("get_gobang_clear", getGobangClearListener);
         socket.on("get_gobang_state", getGobangStateListener);
-        socket.on("updateComing", onTextUpdate);
+//        socket.on("updateComing", onTextUpdate);
         socket.connect();
 
         GobangView.setGameState(GobangView.GS_GAME);
@@ -239,7 +211,7 @@ public class GobangActivity extends AppCompatActivity {
         socket.off("get_gobang", getGobangListener);
         socket.off("get_gobang_clear", getGobangClearListener);
         socket.off("get_gobang_state", getGobangStateListener);
-        socket.off("update", onTextUpdate);
+//        socket.off("update", onTextUpdate);
         sendMessage(-1);
     }
 
@@ -252,81 +224,6 @@ public class GobangActivity extends AppCompatActivity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         return super.onKeyDown(keyCode, event);
     }
-
-
-//    public void getInit(){
-//        String stringUrl = BASE_URL + "/get_init";
-//
-//        ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-//        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-//
-//        GetMessageTask getMessageTask = new GetMessageTask();
-//        if (networkInfo != null && networkInfo.isConnected()){
-//            getMessageTask.execute(stringUrl);
-//        } else {
-//            Toast.makeText(getApplicationContext(), "No network connection available.", Toast.LENGTH_SHORT).show();
-//        }
-//    }
-
-//    private class GetMessageTask extends AsyncTask<String, Void, String> {
-//        @Override
-//        protected String doInBackground(String... urls){
-//            try {
-//                return downloadUrl(urls[0]);
-//            } catch (IOException e) {
-//                return "Unable to retrieve web page. URL may be invalid.";
-//            }
-//        }
-//
-//        protected void onPostExecute(String result){
-//            try {
-//                JSONObject json = new JSONObject(result);
-//                String init = json.getString("init");
-//                String onlineCnt = json.getString("onlineCnt");
-////                Log.d(TAG, "OnlineCnt: " + onlineCnt);
-//                if (Integer.parseInt(onlineCnt) < 2){
-//                    GobangView.listenFlag = Integer.parseInt(init);
-////                    GobangView.localNum = Integer.parseInt(onlineCnt);
-//
-//                } else {
-//                    GobangView.listenFlag = 11;
-//                }
-//
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-////            text.setText(currentPage + " : " + totalPage);
-//        }
-//
-//        private String downloadUrl(String myurl) throws IOException{
-//            InputStream is = null;
-//            try {
-//                URL url = new URL(myurl);
-//                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-//                conn.setReadTimeout(10000);
-//                conn.setConnectTimeout(15000);
-//                conn.setRequestMethod("GET");
-//                conn.setDoInput(true);
-//
-//                conn.connect();
-//                int responseCode = conn.getResponseCode();
-//                String results = "";
-//                is = conn.getInputStream();
-//                if (responseCode == HttpURLConnection.HTTP_OK){
-//                    String line;
-//                    BufferedReader br = new BufferedReader( new InputStreamReader(is));
-//                    while ((line = br.readLine()) != null) {
-//                        results += line;
-//                    }
-//                }
-//                return results;
-//            }finally {
-//                if (is != null){
-//                    is.close();
-//                }
-//            }
-//        }
-//    }
 
     public void sendMessage(int cnt){
         Map<String, String> paramsMap = new HashMap<>();

@@ -23,6 +23,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -40,6 +41,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
+
 public class MainActivity extends AppCompatActivity {
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private static final String TAG = "MainActivity";
@@ -52,6 +57,15 @@ public class MainActivity extends AppCompatActivity {
     private ListView listView;
     private SimpleAdapter adapter;
     private ArrayList<HashMap<String, Object>> list;
+    private Socket socket;
+    {
+        try {
+            socket = IO.socket("http://52.196.31.83:8000");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
                 // MainActivity.this.finish();
             }
         });
+
 //        listView.setAdapter(adapter);
 //        myClickHandler();
 //        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -115,7 +130,47 @@ public class MainActivity extends AppCompatActivity {
 //                startActivity(intent);
 //            }
 //        });
+        socket.on("updateComing", onTextUpdate);
+        socket.connect();
     }
+
+    private Emitter.Listener onTextUpdate = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            try {
+                JSONObject data = (JSONObject) args[0];
+                final String text = data.getString("text");
+                final String init = data.getString("init");
+                final String onlineCnt = data.getString("onlineCnt");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d(TAG, "From: " + text);
+                        Log.d(TAG, "init: " + init);
+                        Log.d(TAG, "onlineCnt: " + onlineCnt);
+                        if (Integer.parseInt(onlineCnt) < 2){
+                            GobangView.listenFlag = Integer.parseInt(init);
+                            GobangView.localNum = Integer.parseInt(onlineCnt);
+                        } else {
+                            GobangView.listenFlag = 11;
+                            Toast.makeText(getApplicationContext(), "Already two players, you are watching now!", Toast.LENGTH_SHORT).show();
+                        }
+                        Log.d(TAG, "localNum: " + GobangView.localNum);
+                        Log.d(TAG, "GobangView.listenFlag: " + GobangView.listenFlag);
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    };
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        socket.disconnect();
+        socket.off("update", onTextUpdate);
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
