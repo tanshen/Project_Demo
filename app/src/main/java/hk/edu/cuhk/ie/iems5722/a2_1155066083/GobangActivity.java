@@ -105,6 +105,8 @@ public class GobangActivity extends AppCompatActivity {
                         String clear_winner = data.getString("clear_winner");
                         GobangView.mCampWinner = Integer.parseInt(clear_winner);
                         GobangView.mGameMap = new int[GobangView.CHESS_HEIGHT][GobangView.CHESS_WIDTH];
+                        GobangView.listenFlag = 0;
+                        GobangView.addToFlag.clear();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -203,6 +205,11 @@ public class GobangActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
+
+    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         return super.onKeyDown(keyCode, event);
     }
@@ -236,23 +243,6 @@ public class GobangActivity extends AppCompatActivity {
                 JSONObject json = new JSONObject(result);
                 String init = json.getString("var");
                 GobangView.listenFlag = Integer.parseInt(init);
-//                String data = json.getString("data");
-//                JSONObject json_data = new JSONObject(data);
-//                totalPage = json_data.getInt("total_pages");
-//                JSONArray array = json_data.getJSONArray("messages");
-//                for (int i = 0; i < array.length() ; i++){
-//                    String message = array.getJSONObject(i).getString("message");
-//                    String timestamp = array.getJSONObject(i).getString("timestamp");
-//                    String user_name = array.getJSONObject(i).getString("name");
-//                    int user_id = array.getJSONObject(i).getInt("user_id");
-//
-//                    ItemMessage item = new ItemMessage(message, timestamp, user_name);
-//                    item.chatroom_id = Integer.toString(chatRoomItem.chatroom_id);
-//                    item.user_id = Integer.toString(user_id);
-//
-//                    message_items.add(0, item);
-//                    itemadapter.notifyDataSetChanged();
-//                }
 
             } catch (JSONException e) {
                 e.printStackTrace();

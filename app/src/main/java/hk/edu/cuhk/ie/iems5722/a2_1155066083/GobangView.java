@@ -61,6 +61,7 @@ public class GobangView extends SurfaceView implements Params,
 //        }
 //    }
     private static final String TAG = "ClientSocketIO";
+    private static final String TAG2 = "Parameters";
     public static Paint sPaint = null;
     public static Canvas sCanvas = null;
     public static Resources sResources = null;
@@ -153,8 +154,8 @@ public class GobangView extends SurfaceView implements Params,
                 mCampTurn = CAMP_HERO;
                 ItemClear item = new ItemClear(mCampWinner + "");
                 sendClear(item);
-                listenFlag = 0;
-                addToFlag.clear();
+//                listenFlag = 0;
+//                addToFlag.clear();
                 ItemClear itemState = new ItemClear(mGameState + "");
                 sendState(itemState);
                 break;
@@ -372,6 +373,8 @@ public class GobangView extends SurfaceView implements Params,
                         ItemSend item = new ItemSend(mMapIndexX+"", mMapIndexY+"", mCampTurn+"");
                         addToFlag.add(mCampTurn-1);
                         flag[0] = addToFlag.get(0);
+                        Log.d(TAG2, "listenFlag: " + listenFlag);
+                        Log.d(TAG2, "GobangView.flag[0]: " + GobangView.flag[0]);
                         if (listenFlag == GobangView.flag[0])
                         {sendMessage(item, flag[0]);}
                     }
