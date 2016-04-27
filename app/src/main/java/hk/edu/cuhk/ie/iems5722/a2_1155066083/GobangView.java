@@ -35,6 +35,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ArrayList;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -99,6 +100,10 @@ public class GobangView extends SurfaceView implements Params,
             });
         }
     };
+
+    public static int[] flag = new int[1];
+    public static int listenFlag;
+    public static ArrayList<Integer> addToFlag = new ArrayList<>();
 
     public GobangView(Activity activity, int screenWidth, int screenHeight) {
         super(activity);
@@ -363,7 +368,10 @@ public class GobangView extends SurfaceView implements Params,
 
                     if (mGameMap[mMapIndexY][mMapIndexX] == CAMP_DEFAULT) {
                         ItemSend item = new ItemSend(mMapIndexX+"", mMapIndexY+"", mCampTurn+"");
-                        sendMessage(item);
+                        addToFlag.add(mCampTurn-1);
+                        flag[0] = addToFlag.get(0);
+                        if (listenFlag == GobangView.flag[0])
+                        {sendMessage(item, flag[0]);}
                     }
                 }
                 break;
@@ -478,11 +486,12 @@ public class GobangView extends SurfaceView implements Params,
         }
     }
 
-    public void sendMessage(ItemSend item){
+    public void sendMessage(ItemSend item, int flag){
         Map<String, String> paramsMap = new HashMap<>();
         paramsMap.put("x", item.x);
         paramsMap.put("y", item.y);
         paramsMap.put("campTurn", item.campTurn);
+        paramsMap.put("flag", String.valueOf(flag));
 
 //        ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
 //        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();

@@ -34,6 +34,12 @@ public class GobangActivity extends AppCompatActivity {
                         JSONObject data = new JSONObject((String) args[0]);
                         String id = data.getString("id");
                         String var = data.getString("var");
+                        String flagInt = data.getString("flagInt");
+
+                        GobangView.listenFlag = Integer.parseInt(flagInt);
+                        GobangView.addToFlag.add(GobangView.listenFlag);
+                        GobangView.flag[0] = GobangView.addToFlag.get(0);
+
                         int tmp = Integer.parseInt(id);
                         final int x = (tmp-1) %  9;
                         final int y = (tmp-1) / 9;
