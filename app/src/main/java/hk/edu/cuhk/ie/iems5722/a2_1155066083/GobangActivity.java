@@ -1,5 +1,9 @@
 package hk.edu.cuhk.ie.iems5722.a2_1155066083;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.app.Activity;
 import android.os.Bundle;
@@ -10,8 +14,16 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -22,6 +34,7 @@ import io.socket.emitter.Emitter;
  */
 public class GobangActivity extends AppCompatActivity {
     private static final String TAG = "ClientSocketIO";
+    public static final String BASE_URL = "http://52.196.31.83/iems5722";
     GobangView gobangView = null;
     private Socket socket;
     private Emitter.Listener getGobangListener = new Emitter.Listener() {
@@ -178,6 +191,7 @@ public class GobangActivity extends AppCompatActivity {
         }
         gobangView = GobangView.getInstance();
         setContentView(gobangView);
+        getInit();
 //        setContentView(R.layout.activity_main);
 
         socket.on(Socket.EVENT_CONNECT, onConnectSuccess);
@@ -191,5 +205,88 @@ public class GobangActivity extends AppCompatActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         return super.onKeyDown(keyCode, event);
+    }
+
+    public void getInit(){
+        String stringUrl = BASE_URL + "/get_init";
+
+        ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+        GetMessageTask getMessageTask = new GetMessageTask();
+        if (networkInfo != null && networkInfo.isConnected()){
+            getMessageTask.execute(stringUrl);
+        } else {
+            Toast.makeText(getApplicationContext(), "No network connection available.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private class GetMessageTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... urls){
+            try {
+                return downloadUrl(urls[0]);
+            } catch (IOException e) {
+                return "Unable to retrieve web page. URL may be invalid.";
+            }
+        }
+
+        protected void onPostExecute(String result){
+            try {
+                JSONObject json = new JSONObject(result);
+                String init = json.getString("var");
+                GobangView.listenFlag = Integer.parseInt(init);
+//                String data = json.getString("data");
+//                JSONObject json_data = new JSONObject(data);
+//                totalPage = json_data.getInt("total_pages");
+//                JSONArray array = json_data.getJSONArray("messages");
+//                for (int i = 0; i < array.length() ; i++){
+//                    String message = array.getJSONObject(i).getString("message");
+//                    String timestamp = array.getJSONObject(i).getString("timestamp");
+//                    String user_name = array.getJSONObject(i).getString("name");
+//                    int user_id = array.getJSONObject(i).getInt("user_id");
+//
+//                    ItemMessage item = new ItemMessage(message, timestamp, user_name);
+//                    item.chatroom_id = Integer.toString(chatRoomItem.chatroom_id);
+//                    item.user_id = Integer.toString(user_id);
+//
+//                    message_items.add(0, item);
+//                    itemadapter.notifyDataSetChanged();
+//                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+//            text.setText(currentPage + " : " + totalPage);
+        }
+
+        private String downloadUrl(String myurl) throws IOException{
+            InputStream is = null;
+            try {
+                URL url = new URL(myurl);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setReadTimeout(10000);
+                conn.setConnectTimeout(15000);
+                conn.setRequestMethod("GET");
+                conn.setDoInput(true);
+
+                conn.connect();
+                int responseCode = conn.getResponseCode();
+                String results = "";
+                is = conn.getInputStream();
+                if (responseCode == HttpURLConnection.HTTP_OK){
+                    String line;
+                    BufferedReader br = new BufferedReader( new InputStreamReader(is));
+                    while ((line = br.readLine()) != null) {
+                        results += line;
+                    }
+                }
+                return results;
+            }finally {
+                if (is != null){
+                    is.close();
+                }
+            }
+        }
     }
 }
