@@ -160,6 +160,7 @@ public class GobangActivity extends AppCompatActivity {
                             GobangView.localNum = Integer.parseInt(onlineCnt);
                         } else {
                             GobangView.listenFlag = 11;
+                            Toast.makeText(getApplicationContext(), "Already two players, you are watching now!", Toast.LENGTH_SHORT).show();
                         }
                         Log.d(TAG, "localNum: " + GobangView.localNum);
                         Log.d(TAG, "GobangView.listenFlag: " + GobangView.listenFlag);
@@ -203,6 +204,9 @@ public class GobangActivity extends AppCompatActivity {
         Display display = getWindowManager().getDefaultDisplay();
         // 现实GobangView
         GobangView.init(this, display.getWidth(), display.getHeight());
+        gobangView = GobangView.getInstance();
+        setContentView(gobangView);
+
         try {
             JSONObject json = new JSONObject();
             json.put("text", "Socket from client!");
@@ -210,8 +214,6 @@ public class GobangActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        gobangView = GobangView.getInstance();
-        setContentView(gobangView);
 //        getInit();
         if (GobangView.localNum < 2)
             sendMessage(1);
@@ -223,6 +225,10 @@ public class GobangActivity extends AppCompatActivity {
         socket.on("get_gobang_state", getGobangStateListener);
         socket.on("updateComing", onTextUpdate);
         socket.connect();
+
+        GobangView.setGameState(GobangView.GS_GAME);
+
+
     }
 
     @Override

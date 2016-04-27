@@ -135,7 +135,7 @@ public class GobangView extends SurfaceView implements Params,
         mTitleSpaceY = (float) 2* mTitleHeight / CHESS_HEIGHT;
         mTitleIndex_x = (float) (mTitleSpaceX / 2);
         mTitleIndex_y = (float) (mTitleSpaceY / 2);
-        setGameState(GS_GAME);
+
     }
 
     public static void init(Activity mActivity, int screenWidth,
