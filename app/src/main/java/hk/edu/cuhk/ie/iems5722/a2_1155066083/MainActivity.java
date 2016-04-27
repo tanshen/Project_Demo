@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
 //                            GobangView.listenFlag = 11;
                             Toast.makeText(getApplicationContext(), "Already two players, you are watching now!", Toast.LENGTH_SHORT).show();
                         }
-                        Log.d(TAG, "localNum: " + GobangView.localNum);
+                        Log.e(TAG, "mCampTurn: " + GobangView.mCampTurn);
                         Log.d(TAG, "GobangView.listenFlag: " + GobangView.listenFlag);
                     }
                 });
@@ -201,6 +201,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         socket.disconnect();
 //        socket.off("update", onTextUpdate);
+        socket.off("get_gobang_user", getGobangUser);
     }
 
     @Override

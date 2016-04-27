@@ -153,7 +153,7 @@ public class GobangView extends SurfaceView implements Params,
         mGameState = newState;
         switch (mGameState) {
             case GS_GAME:
-                if (mCampTurn > 0){
+                if (true){
                     mGameMap = new int[CHESS_HEIGHT][CHESS_WIDTH];
                     mCampTurn = CAMP_HERO;
                     ItemClear item = new ItemClear(mCampWinner + "");
