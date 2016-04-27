@@ -201,8 +201,9 @@ public class GobangActivity extends AppCompatActivity {
         gobangView = GobangView.getInstance();
         setContentView(gobangView);
         getInit();
+        Log.d(TAG, "localNum" + localNum);
         if (localNum < 2)
-            sendMessage(localNum+1);
+            sendMessage(1);
 //        setContentView(R.layout.activity_main);
 
         socket.on(Socket.EVENT_CONNECT, onConnectSuccess);
@@ -211,6 +212,18 @@ public class GobangActivity extends AppCompatActivity {
         socket.on("get_gobang_state", getGobangStateListener);
         socket.on("update", onTextUpdate);
         socket.connect();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        socket.disconnect();
+        socket.off(Socket.EVENT_CONNECT, onConnectSuccess);
+        socket.off("get_gobang", getGobangListener);
+        socket.off("get_gobang_clear", getGobangClearListener);
+        socket.off("get_gobang_state", getGobangStateListener);
+        socket.off("update", onTextUpdate);
+        sendMessage(-1);
     }
 
     @Override
