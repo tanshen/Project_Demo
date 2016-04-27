@@ -94,6 +94,7 @@ public class GobangView extends SurfaceView implements Params,
     private int mTitleHeight = 0;
     private float mTitleIndex_x = 0;
     private float mTitleIndex_y = 0;
+    public static int localNum = 0;
     private Emitter.Listener onConnectSuccess = new Emitter.Listener() {
         @Override
         public void call(Object... args) {

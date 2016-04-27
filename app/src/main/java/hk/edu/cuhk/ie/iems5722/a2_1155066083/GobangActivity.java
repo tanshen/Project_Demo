@@ -42,7 +42,7 @@ public class GobangActivity extends AppCompatActivity {
     private static final String TAG = "ClientSocketIO";
     public static final String BASE_URL = "http://52.196.31.83/iems5722";
     GobangView gobangView = null;
-    private int localNum;
+
     private Socket socket;
     private Emitter.Listener getGobangListener = new Emitter.Listener() {
         @Override
@@ -201,8 +201,8 @@ public class GobangActivity extends AppCompatActivity {
         gobangView = GobangView.getInstance();
         setContentView(gobangView);
         getInit();
-        Log.d(TAG, "localNum" + localNum);
-        if (localNum < 2)
+        Log.d(TAG, "localNum: " + GobangView.localNum);
+        if (GobangView.localNum < 2)
             sendMessage(1);
 //        setContentView(R.layout.activity_main);
 
@@ -267,7 +267,7 @@ public class GobangActivity extends AppCompatActivity {
                 String onlineCnt = json.getString("onlineCnt");
                 if (Integer.parseInt(onlineCnt) < 2){
                     GobangView.listenFlag = Integer.parseInt(init);
-                    localNum = Integer.parseInt(onlineCnt);
+                    GobangView.localNum = Integer.parseInt(onlineCnt);
                 } else {
                     GobangView.listenFlag = 11;
                 }
