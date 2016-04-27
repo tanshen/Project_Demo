@@ -292,8 +292,8 @@ public class GobangView extends SurfaceView implements Params,
             case GS_END:
                 RenderMap();
                 DrawRect(Color.RED, mScreenWidth / 5, mScreenHeight / 8, 4 * mScreenWidth / 5, mScreenHeight / 3);
-//                DrawString(Color.WHITE, sResources.getString(mCampWinner)
-//                        + "胜利 点击继续游戏", 50, 50);
+                DrawString(Color.WHITE, sResources.getString(mCampWinner)
+                        + "胜利 点击继续游戏", 50, 50);
                 Log.d(TAG,"winner"+ mCampWinner);
 
                 break;
