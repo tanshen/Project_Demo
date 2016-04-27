@@ -97,7 +97,11 @@ public class MainActivity extends AppCompatActivity {
         mInformationTextView = (TextView) findViewById(R.id.informationTextView);
         // Registering BroadcastReceiver
         registerReceiver();
-
+        try {
+            Class.forName("android.os.AsyncTask");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
         if (checkPlayServices()) {
             // Start IntentService to register this application with GCM.
             Intent intent = new Intent(this, RegistrationIntentService.class);
@@ -120,17 +124,28 @@ public class MainActivity extends AppCompatActivity {
         bnt_gobang.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sendMessage(RegistrationIntentService.token);
-                Intent intent = new Intent();
-                intent.setClass(MainActivity.this, GobangActivity.class);
-                startActivity(intent);
+                sendUser(RegistrationIntentService.token);
+                getUser();
+//                if (sidList.contains(RegistrationIntentService.token)) {
+                    GobangView.mCampTurn = sidList.indexOf(RegistrationIntentService.token) + 1;
+
+                    Intent intent = new Intent();
+                    intent.setClass(MainActivity.this, GobangActivity.class);
+                    startActivity(intent);
+
+//                } else {
+//                    GobangView.mCampTurn = 0;
+//                    Toast.makeText(getApplicationContext(), "Already two players, you are watching now!", Toast.LENGTH_SHORT).show();
+//
+//                }
+
                 // MainActivity.this.finish();
             }
         });
 
 //        socket.on("updateComing", onTextUpdate);
-        socket.on("get_gobang_user", getGobangUser);
-        socket.connect();
+//        socket.on("get_gobang_user", getGobangUser);
+//        socket.connect();
     }
 
 //    private Emitter.Listener onTextUpdate = new Emitter.Listener() {
@@ -166,43 +181,47 @@ public class MainActivity extends AppCompatActivity {
 //    };
 
 
-    private Emitter.Listener getGobangUser = new Emitter.Listener() {
-        @Override
-        public void call(Object... args) {
-            try {
-                JSONObject data = (JSONObject) args[0];
-                final String sid = data.getString("sid");
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.d(TAG, "sid: " + sid);
-                        if (sidList.contains(RegistrationIntentService.token)){
-//                            GobangView.listenFlag = Integer.parseInt(init);
-//                            GobangView.localNum = Integer.parseInt(onlineCnt);
-                            GobangView.mCampTurn = sidList.indexOf(RegistrationIntentService.token)+1;
-
-                        } else {
-                            GobangView.mCampTurn = 0;
-//                            GobangView.listenFlag = 11;
-                            Toast.makeText(getApplicationContext(), "Already two players, you are watching now!", Toast.LENGTH_SHORT).show();
-                        }
-                        Log.e(TAG, "mCampTurn: " + GobangView.mCampTurn);
-                        Log.d(TAG, "GobangView.listenFlag: " + GobangView.listenFlag);
-                    }
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    };
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        socket.disconnect();
-//        socket.off("update", onTextUpdate);
-        socket.off("get_gobang_user", getGobangUser);
-    }
+//    private Emitter.Listener getGobangUser = new Emitter.Listener() {
+//        @Override
+//        public void call(final Object... args) {
+//            runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                JSONObject data = null;
+//                try {
+//                    data = new JSONObject((String) args[0]);
+////                    JSONObject data = (JSONObject) args[0];
+//                    final String sid = data.getString("sid");
+////                    runOnUiThread(new Runnable() {
+//
+//                    Log.d(TAG, "listensid: " + sid);
+//                    if (sidList.contains(RegistrationIntentService.token)) {
+////                            GobangView.listenFlag = Integer.parseInt(init);
+////                            GobangView.localNum = Integer.parseInt(onlineCnt);
+//                        GobangView.mCampTurn = sidList.indexOf(RegistrationIntentService.token) + 1;
+//
+//                    } else {
+//                        GobangView.mCampTurn = 0;
+////                            GobangView.listenFlag = 11;
+//                        Toast.makeText(getApplicationContext(), "Already two players, you are watching now!", Toast.LENGTH_SHORT).show();
+//                    }
+//                    Log.e(TAG, "mCampTurn: " + GobangView.mCampTurn);
+//                    Log.d(TAG, "GobangView.listenFlag: " + GobangView.listenFlag);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//            });
+//        }
+//    };
+//
+//    @Override
+//    public void onDestroy() {
+//        super.onDestroy();
+//        socket.disconnect();
+////        socket.off("update", onTextUpdate);
+//        socket.off("get_gobang_user", getGobangUser);
+//    }
 
     @Override
     protected void onResume() {
@@ -329,7 +348,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void sendMessage(String token){
+    public void sendUser(String token){
         Map<String, String> paramsMap = new HashMap<>();
         paramsMap.put("sid", token);
 
@@ -365,22 +384,22 @@ public class MainActivity extends AppCompatActivity {
         }
 
         protected void onPostExecute(String result){
-            try {
-                JSONObject json = new JSONObject(result);
-                String data = json.getString("data");
-                JSONObject json_data = new JSONObject(data);
-                JSONArray array = json_data.getJSONArray("sid");
-                for (int i = 0; i < array.length() ; i++){
-                    String sid = array.getJSONObject(i).getString("sid");
-                    sidList.add(sid);
-                }
-//                if (status.equals("ERROR")){
-////                    Toast.makeText(getApplicationContext(), "Cannot post the message!", Toast.LENGTH_SHORT).show();
+//            try {
+//                JSONObject json = new JSONObject(result);
+//                String data = json.getString("data");
+//                JSONObject json_data = new JSONObject(data);
+//                JSONArray array = json_data.getJSONArray("sid");
+//                for (int i = 0; i < array.length() ; i++){
+//                    String sid = array.getJSONObject(i).getString("sid");
+//                    sidList.add(sid);
 //                }
-                Log.d(TAG, "sidList: " + sidList);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+////                if (status.equals("ERROR")){
+//////                    Toast.makeText(getApplicationContext(), "Cannot post the message!", Toast.LENGTH_SHORT).show();
+////                }
+//                Log.d(TAG, "sidList: " + sidList);
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
         }
 
         private String uploadUrl(String myurl, final Map<String, String> paramsMap) throws IOException{
@@ -430,6 +449,81 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void getUser() {
+        String stringUrl = BASE_URL + "/send_user";
+        ConnectivityManager connMgr = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected()) {
+            new GetMsgTask().execute(stringUrl);
+        } else {
+            Toast.makeText(getApplicationContext(),
+                    "No network connection available.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private class GetMsgTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... urls) {
+            // params comes from the execute() call: params[0] is the url.
+            try {
+                return downloadUrl(urls[0]);
+            } catch (IOException e) {
+                return "Unable to retrieve web page. URL may be invalid.";
+            }
+        }
+        @Override
+        protected void onPostExecute(String result) {
+            JSONObject json = null;
+            try {
+                json = new JSONObject(result);
+                JSONObject data = json.getJSONObject("data");
+                JSONArray array = data.getJSONArray("sid");
+                for (int i = 0; i < array.length() ; i++){
+                    String sid = array.getJSONObject(i).getString("sid");
+                    sidList.add(sid);
+                }
+//                if (status.equals("ERROR")){
+////                    Toast.makeText(getApplicationContext(), "Cannot post the message!", Toast.LENGTH_SHORT).show();
+//                }
+                Log.d(TAG, "sidList: " + sidList);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        private String downloadUrl(String myurl) throws IOException {
+            InputStream is = null;
+            // Only display the first 500 characters of the retrieved
+            // web page content.
+            int len = 500;
+            try {
+                URL url = new URL(myurl);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setReadTimeout(10000 /* milliseconds */);
+                conn.setConnectTimeout(15000 /* milliseconds */);
+                conn.setRequestMethod("GET");
+                conn.setDoInput(true);
+                // Starts the query
+                conn.connect();
+                int response = conn.getResponseCode();
+                is = conn.getInputStream();
+                // Convert the InputStream into a string
+                String results="";
+                String line;
+                BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                while ((line = br.readLine()) != null) {
+                    results += line;
+                }
+                return results;
+                // Makes sure that the InputStream is closed after the app is
+                // finished using it.
+            } finally {
+                if (is != null) {
+                    is.close();
+                }
+            }
+        }
+    }
     private boolean checkPlayServices() {
         GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
         int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
