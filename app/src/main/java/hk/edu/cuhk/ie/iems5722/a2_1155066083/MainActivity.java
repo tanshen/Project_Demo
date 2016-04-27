@@ -49,6 +49,7 @@ import java.util.Map;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
+import hk.edu.cuhk.ie.iems5722.a2_1155066083.GobangView;
 
 public class MainActivity extends AppCompatActivity {
     public static final String BASE_URL = "http://52.196.31.83/iems5722";
@@ -63,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
     private ListView listView;
     private SimpleAdapter adapter;
     private ArrayList<HashMap<String, Object>> list;
-    private static ArrayList<String> sidList;
+    public static ArrayList<String> sidList;
     private Socket socket;
     {
         try {
@@ -109,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
         toolbar.setNavigationIcon(R.drawable.cuhk48);
         toolbar.setTitle(getResources().getString(R.string.main_label));
         textView = (TextView)findViewById(R.id.tvText);
-       // listView = (ListView)findViewById(R.id.chatroom_list);
+        // listView = (ListView)findViewById(R.id.chatroom_list);
         adapter = new SimpleAdapter(this, list, R.layout.content_chatrooms,
                 new String[]{"name","id"},
                 new int[]{R.id.chatroom_name});
@@ -127,44 +128,63 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        listView.setAdapter(adapter);
-//        myClickHandler();
-//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                Intent intent = new Intent();
-//                intent.setClass(MainActivity.this, GobangActivity.class);
-//                intent.putExtra("id", list.get(position).get("id").toString());
-//                intent.putExtra("name", list.get(position).get("name").toString());
-//                startActivity(intent);
-//            }
-//        });
-        socket.on("updateComing", onTextUpdate);
-//        socket.on("get_gobang_user", getGobangUser);
+//        socket.on("updateComing", onTextUpdate);
+        socket.on("get_gobang_user", getGobangUser);
         socket.connect();
     }
 
-    private Emitter.Listener onTextUpdate = new Emitter.Listener() {
+//    private Emitter.Listener onTextUpdate = new Emitter.Listener() {
+//        @Override
+//        public void call(Object... args) {
+//            try {
+//                JSONObject data = (JSONObject) args[0];
+//                final String text = data.getString("text");
+//                final String init = data.getString("init");
+//                final String onlineCnt = data.getString("onlineCnt");
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Log.d(TAG, "From: " + text);
+//                        Log.d(TAG, "init: " + init);
+//                        Log.d(TAG, "onlineCnt: " + onlineCnt);
+//                        if (sidList.contains(RegistrationIntentService.token)){
+////                            GobangView.listenFlag = Integer.parseInt(init);
+//                            GobangView.mCampTurn = sidList.indexOf(RegistrationIntentService.token)+1;
+////                            GobangView.localNum = Integer.parseInt(onlineCnt);
+//                        } else {
+//                            GobangView.mCampTurn = 0;
+//                            Toast.makeText(getApplicationContext(), "Already two players, you are watching now!", Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+////                        Log.d(TAG, "localNum: " + GobangView.localNum);
+////                        Log.d(TAG, "GobangView.listenFlag: " + GobangView.listenFlag);
+//                });
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    };
+
+
+    private Emitter.Listener getGobangUser = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
             try {
                 JSONObject data = (JSONObject) args[0];
-                final String text = data.getString("text");
-                final String init = data.getString("init");
-                final String onlineCnt = data.getString("onlineCnt");
+                final String sid = data.getString("sid");
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Log.d(TAG, "From: " + text);
-                        Log.d(TAG, "init: " + init);
-                        Log.d(TAG, "onlineCnt: " + onlineCnt);
-                        if (Integer.parseInt(onlineCnt) < 2){
-                            GobangView.listenFlag = Integer.parseInt(init);
-                            GobangView.localNum = Integer.parseInt(onlineCnt);
+                        Log.d(TAG, "sid: " + sid);
+                        if (sidList.contains(RegistrationIntentService.token)){
+//                            GobangView.listenFlag = Integer.parseInt(init);
+//                            GobangView.localNum = Integer.parseInt(onlineCnt);
+                            GobangView.mCampTurn = sidList.indexOf(RegistrationIntentService.token)+1;
+
                         } else {
-                            if (!sidList.contains(RegistrationIntentService.token)){
-                                GobangView.listenFlag = 11;
-                                Toast.makeText(getApplicationContext(), "Already two players, you are watching now!", Toast.LENGTH_SHORT).show();
-                            }
+                            GobangView.mCampTurn = 0;
+//                            GobangView.listenFlag = 11;
+                            Toast.makeText(getApplicationContext(), "Already two players, you are watching now!", Toast.LENGTH_SHORT).show();
                         }
                         Log.d(TAG, "localNum: " + GobangView.localNum);
                         Log.d(TAG, "GobangView.listenFlag: " + GobangView.listenFlag);
@@ -176,39 +196,11 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-//    private Emitter.Listener getGobangUser = new Emitter.Listener() {
-//        @Override
-//        public void call(Object... args) {
-//            try {
-//                JSONObject data = (JSONObject) args[0];
-////                final String sid = data.getString("sid");
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-////                        Log.d(TAG, "sid: " + sid);
-////                        if (Integer.parseInt(onlineCnt) < 2){
-////                            GobangView.listenFlag = Integer.parseInt(init);
-////                            GobangView.localNum = Integer.parseInt(onlineCnt);
-////                        } else {
-////                            GobangView.listenFlag = 11;
-////                            Toast.makeText(getApplicationContext(), "Already two players, you are watching now!", Toast.LENGTH_SHORT).show();
-////                        }
-////                        Log.d(TAG, "localNum: " + GobangView.localNum);
-////                        Log.d(TAG, "GobangView.listenFlag: " + GobangView.listenFlag);
-//                    }
-//                });
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    };
-
-
     @Override
     public void onDestroy() {
         super.onDestroy();
         socket.disconnect();
-        socket.off("update", onTextUpdate);
+//        socket.off("update", onTextUpdate);
     }
 
     @Override
@@ -277,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
         }
         @Override
         protected void onPostExecute(String result) {
-           // textView.setText(result);
+            // textView.setText(result);
             JSONObject json = null;
             try {
                 json = new JSONObject(result);

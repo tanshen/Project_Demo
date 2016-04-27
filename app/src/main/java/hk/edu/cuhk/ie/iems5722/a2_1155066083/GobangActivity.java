@@ -53,39 +53,41 @@ public class GobangActivity extends AppCompatActivity {
                     try {
                         JSONObject data = new JSONObject((String) args[0]);
                         String id = data.getString("id");
-                        String var = data.getString("var");
-                        String flagInt = data.getString("flagInt");
+                        GobangView.currentTurn = Integer.parseInt(data.getString("currentTurn"));
 
-                        GobangView.listenFlag = Integer.parseInt(flagInt);
-                        GobangView.addToFlag.add(GobangView.listenFlag);
-                        GobangView.flag[0] = GobangView.addToFlag.get(0);
+//                        String flag = data.getString("flagInt");
+//                        int currentTurn = Integer.parseInt(var);
+//                        if (MainActivity.sidList.contains(RegistrationIntentService.token)){
+//                            GobangView.listenFlag = Integer.parseInt(flagInt);
+////                        }
+//                        GobangView.addToFlag.add(GobangView.listenFlag);
+//                        GobangView.flag[0] = GobangView.addToFlag.get(0);
 
                         int tmp = Integer.parseInt(id);
                         final int x = (tmp-1) %  9;
                         final int y = (tmp-1) / 9;
-                        int campTurn = Integer.parseInt(var);
-                        if (campTurn == GobangView.CAMP_HERO) {
+                        if (GobangView.currentTurn == GobangView.CAMP_HERO) {
                             GobangView.mGameMap[y][x] = GobangView.CAMP_HERO;
                             if (GobangView.CheckPiecesMeet(GobangView.CAMP_HERO)){//HERO win
-                                GobangView.mCampWinner = R.string.Role_black;
+//                                GobangView.mCampWinner = R.string.Role_black;
                                 GobangView.mGameState = GobangView.GS_END;
                                 GobangView.mCampWinner = GobangView.CAMP_HERO;
                                 ItemClear itemState = new ItemClear(GobangView.mGameState + "");
                                 GobangView.sendState(itemState);
                             }else {
-                                GobangView.mCampTurn = GobangView.CAMP_ENEMY;
+                              //  GobangView.mCampTurn = GobangView.CAMP_ENEMY;
                             }
                         }
                         else{
                             GobangView.mGameMap[y][x] = GobangView.CAMP_ENEMY;
                             if (GobangView.CheckPiecesMeet(GobangView.CAMP_ENEMY)){
-                                GobangView.mCampWinner = R.string.Role_white;
+//                                GobangView.mCampWinner = R.string.Role_white;
                                 GobangView.mGameState = GobangView.GS_END;
                                 GobangView.mCampWinner = GobangView.CAMP_ENEMY;
                                 ItemClear itemState = new ItemClear(GobangView.mGameState + "");
                                 GobangView.sendState(itemState);
                             }else {
-                                GobangView.mCampTurn = GobangView.CAMP_HERO;
+                              //  GobangView.mCampTurn = GobangView.CAMP_HERO;
                             }
                         }
 
@@ -187,8 +189,8 @@ public class GobangActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 //        getInit();
-        if (GobangView.localNum < 2)
-            sendMessage(1);
+//        if (GobangView.localNum < 2)
+//            sendMessage(1);
 //        setContentView(R.layout.activity_main);
 
         socket.on(Socket.EVENT_CONNECT, onConnectSuccess);
@@ -198,7 +200,6 @@ public class GobangActivity extends AppCompatActivity {
 //        socket.on("updateComing", onTextUpdate);
         socket.connect();
 
-        GobangView.setGameState(GobangView.GS_GAME);
 
 
     }
@@ -212,7 +213,7 @@ public class GobangActivity extends AppCompatActivity {
         socket.off("get_gobang_clear", getGobangClearListener);
         socket.off("get_gobang_state", getGobangStateListener);
 //        socket.off("update", onTextUpdate);
-        sendMessage(-1);
+//        sendMessage(-1);
     }
 
     @Override

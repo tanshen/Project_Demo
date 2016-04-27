@@ -95,6 +95,7 @@ public class GobangView extends SurfaceView implements Params,
     private float mTitleIndex_x = 0;
     private float mTitleIndex_y = 0;
     public static int localNum = 0;
+    public static int currentTurn;
     private Emitter.Listener onConnectSuccess = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
@@ -136,6 +137,7 @@ public class GobangView extends SurfaceView implements Params,
         mTitleIndex_x = (float) (mTitleSpaceX / 2);
         mTitleIndex_y = (float) (mTitleSpaceY / 2);
 
+        setGameState(GobangView.GS_GAME);
     }
 
     public static void init(Activity mActivity, int screenWidth,
@@ -151,7 +153,7 @@ public class GobangView extends SurfaceView implements Params,
         mGameState = newState;
         switch (mGameState) {
             case GS_GAME:
-                if (GobangView.listenFlag != 11){
+                if (mCampTurn > 0){
                     mGameMap = new int[CHESS_HEIGHT][CHESS_WIDTH];
                     mCampTurn = CAMP_HERO;
                     ItemClear item = new ItemClear(mCampWinner + "");
@@ -372,12 +374,12 @@ public class GobangView extends SurfaceView implements Params,
 
                     if (mGameMap[mMapIndexY][mMapIndexX] == CAMP_DEFAULT) {
                         ItemSend item = new ItemSend(mMapIndexX+"", mMapIndexY+"", mCampTurn+"");
-                        addToFlag.add(mCampTurn-1);
-                        flag[0] = addToFlag.get(0);
+//                        addToFlag.add(mCampTurn-1);
+//                        flag[0] = addToFlag.get(0);
                         Log.d(TAG2, "listenFlag: " + listenFlag);
-                        Log.d(TAG2, "GobangView.flag[0]: " + GobangView.flag[0]);
-                        if (listenFlag == GobangView.flag[0]){
-                            sendMessage(item, flag[0]);
+//                        Log.d(TAG2, "GobangView.flag[0]: " + GobangView.flag[0]);
+                        if (listenFlag == mCampTurn){
+                            sendMessage(item);
                         }
                     }
                 }
@@ -493,26 +495,16 @@ public class GobangView extends SurfaceView implements Params,
         }
     }
 
-    public void sendMessage(ItemSend item, int flag){
+    public void sendMessage(ItemSend item){
         Map<String, String> paramsMap = new HashMap<>();
         paramsMap.put("x", item.x);
         paramsMap.put("y", item.y);
         paramsMap.put("campTurn", item.campTurn);
-        paramsMap.put("flag", String.valueOf(flag));
-
-//        ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-//        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+//        paramsMap.put("flag", String.valueOf(flag));
 
         PostMessageTask postMessageTask = new PostMessageTask(paramsMap);
         postMessageTask.execute(BASE_URL + "/send_gobang");
 
-
-//        if (networkInfo != null && networkInfo.isConnected()){
-//            postMessageTask.execute(BASE_URL + "/send_gobang");
-//        }
-//        else {
-//            Toast.makeText(getApplicationContext(), "No network connection available.", Toast.LENGTH_SHORT).show();
-//        }
     }
 
     private static class PostMessageTask extends AsyncTask<String, Void, String> {
