@@ -3,6 +3,7 @@ package hk.edu.cuhk.ie.iems5722.a2_1155066083;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.app.Activity;
@@ -19,11 +20,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -241,8 +247,14 @@ public class GobangActivity extends AppCompatActivity {
         protected void onPostExecute(String result){
             try {
                 JSONObject json = new JSONObject(result);
-                String init = json.getString("var");
-                GobangView.listenFlag = Integer.parseInt(init);
+                String init = json.getString("init");
+                String onlineCnt = json.getString("onlineCnt");
+                if (Integer.parseInt(onlineCnt) < 2){
+                    GobangView.listenFlag = Integer.parseInt(init);
+                    sendMessage(Integer.parseInt(init)+1);
+                } else {
+                    GobangView.listenFlag = 11;
+                }
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -273,6 +285,100 @@ public class GobangActivity extends AppCompatActivity {
                 }
                 return results;
             }finally {
+                if (is != null){
+                    is.close();
+                }
+            }
+        }
+    }
+
+    public void sendMessage(int cnt){
+        Map<String, String> paramsMap = new HashMap<>();
+        paramsMap.put("cnt", String.valueOf(cnt));
+
+//        ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+//        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+        PostMessageTask postMessageTask = new PostMessageTask(paramsMap);
+        postMessageTask.execute(BASE_URL + "/send_onlinecnt");
+
+
+//        if (networkInfo != null && networkInfo.isConnected()){
+//            postMessageTask.execute(BASE_URL + "/send_gobang");
+//        }
+//        else {
+//            Toast.makeText(getApplicationContext(), "No network connection available.", Toast.LENGTH_SHORT).show();
+//        }
+    }
+
+    private static class PostMessageTask extends AsyncTask<String, Void, String> {
+        private Map<String, String> paramsMap;
+
+        public PostMessageTask(Map<String, String> paramsMap){
+            this.paramsMap = paramsMap;
+        }
+
+        @Override
+        protected String doInBackground(String... urls){
+            try {
+                return uploadUrl(urls[0], paramsMap);
+            } catch (IOException e) {
+                return "Unable to retrieve web page. URL may be invalid.";
+            }
+        }
+
+        protected void onPostExecute(String result){
+            try {
+                JSONObject json = new JSONObject(result);
+                String status = json.getString("status");
+                if (status.equals("ERROR")){
+//                    Toast.makeText(getApplicationContext(), "Cannot post the message!", Toast.LENGTH_SHORT).show();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        private String uploadUrl(String myurl, final Map<String, String> paramsMap) throws IOException{
+            InputStream is = null;
+            try {
+                URL url = new URL(myurl);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setReadTimeout(15000);
+                conn.setConnectTimeout(15000);
+                conn.setRequestMethod("POST");
+                conn.setDoInput(true);
+                conn.setDoOutput(true);
+
+                OutputStream os = conn.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+
+                Uri.Builder builder = new Uri.Builder();
+                for (String key : paramsMap.keySet()){
+                    builder.appendQueryParameter(key, paramsMap.get(key));
+                }
+                String query = builder.build().getEncodedQuery();
+
+                writer.write(query);
+                writer.flush();
+                writer.close();
+                os.close();
+
+                int responseCode = conn.getResponseCode();
+                String results = "";
+                is = conn.getInputStream();
+                if (responseCode == HttpURLConnection.HTTP_OK){
+                    String line;
+                    BufferedReader br = new BufferedReader( new InputStreamReader(is));
+                    while ((line = br.readLine()) != null) {
+                        results += line;
+                    }
+                }
+                return results;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return "";
+            } finally {
                 if (is != null){
                     is.close();
                 }

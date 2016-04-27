@@ -373,8 +373,9 @@ public class GobangView extends SurfaceView implements Params,
                         flag[0] = addToFlag.get(0);
                         Log.d(TAG2, "listenFlag: " + listenFlag);
                         Log.d(TAG2, "GobangView.flag[0]: " + GobangView.flag[0]);
-                        if (listenFlag == GobangView.flag[0])
-                        {sendMessage(item, flag[0]);}
+                        if (listenFlag == GobangView.flag[0]){
+                            sendMessage(item, flag[0]);
+                        }
                     }
                 }
                 break;
