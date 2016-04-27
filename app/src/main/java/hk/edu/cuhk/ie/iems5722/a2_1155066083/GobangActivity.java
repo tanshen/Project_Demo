@@ -153,8 +153,8 @@ public class GobangActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         Log.d(TAG, "From: " + text);
-                        Log.d(TAG, "From: " + init);
-                        Log.d(TAG, "From: " + onlineCnt);
+                        Log.d(TAG, "init: " + init);
+                        Log.d(TAG, "onlineCnt: " + onlineCnt);
                         if (Integer.parseInt(onlineCnt) < 2){
                             GobangView.listenFlag = Integer.parseInt(init);
                             GobangView.localNum = Integer.parseInt(onlineCnt);
@@ -162,6 +162,7 @@ public class GobangActivity extends AppCompatActivity {
                             GobangView.listenFlag = 11;
                         }
                         Log.d(TAG, "localNum: " + GobangView.localNum);
+                        Log.d(TAG, "GobangView.listenFlag: " + GobangView.listenFlag);
                     }
                 });
             } catch (Exception e) {

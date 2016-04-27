@@ -151,14 +151,16 @@ public class GobangView extends SurfaceView implements Params,
         mGameState = newState;
         switch (mGameState) {
             case GS_GAME:
-                mGameMap = new int[CHESS_HEIGHT][CHESS_WIDTH];
-                mCampTurn = CAMP_HERO;
-                ItemClear item = new ItemClear(mCampWinner + "");
-                sendClear(item);
+                if (GobangView.listenFlag != 11){
+                    mGameMap = new int[CHESS_HEIGHT][CHESS_WIDTH];
+                    mCampTurn = CAMP_HERO;
+                    ItemClear item = new ItemClear(mCampWinner + "");
+                    sendClear(item);
 //                listenFlag = 0;
 //                addToFlag.clear();
-                ItemClear itemState = new ItemClear(mGameState + "");
-                sendState(itemState);
+                    ItemClear itemState = new ItemClear(mGameState + "");
+                    sendState(itemState);
+                }
                 break;
         }
     }
