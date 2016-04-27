@@ -154,6 +154,7 @@ public class GobangView extends SurfaceView implements Params,
                 ItemClear item = new ItemClear(mCampWinner + "");
                 sendClear(item);
                 listenFlag = 0;
+                addToFlag.clear();
                 ItemClear itemState = new ItemClear(mGameState + "");
                 sendState(itemState);
                 break;
