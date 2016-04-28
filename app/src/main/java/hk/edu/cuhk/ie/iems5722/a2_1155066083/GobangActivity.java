@@ -39,8 +39,8 @@ import io.socket.emitter.Emitter;
  * Created by tanshen on 2016/4/23.
  */
 public class GobangActivity extends AppCompatActivity {
-    private static final String TAG = "ClientSocketIO";
     public static final String BASE_URL = "http://52.196.31.83/iems5722";
+    private static final String TAG = "ClientSocketIO";
     GobangView gobangView = null;
 
     private Socket socket;
@@ -53,7 +53,7 @@ public class GobangActivity extends AppCompatActivity {
                     try {
                         JSONObject data = new JSONObject((String) args[0]);
                         String id = data.getString("id");
-                        GobangView.currentTurn = Integer.parseInt(data.getString("currentTurn"));
+                        GobangView.currentTurn = Integer.parseInt(data.getString("currentTurn")) + 1;
 
 //                        String flag = data.getString("flagInt");
 //                        int currentTurn = Integer.parseInt(var);

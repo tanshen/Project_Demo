@@ -155,7 +155,7 @@ public class GobangView extends SurfaceView implements Params,
             case GS_GAME:
                 if (mCampTurn > 0){
                     mGameMap = new int[CHESS_HEIGHT][CHESS_WIDTH];
-                    currentTurn = CAMP_HERO;
+//                    currentTurn = CAMP_HERO;
                     ItemClear item = new ItemClear(mCampWinner + "");
                     sendClear(item);
 //                listenFlag = 0;
@@ -382,6 +382,8 @@ public class GobangView extends SurfaceView implements Params,
                             sendMessage(item);
                         }
                     }
+                    Log.d(TAG2, "currentTurn: " +  GobangView.currentTurn);
+
                 }
                 break;
             case GS_END:
