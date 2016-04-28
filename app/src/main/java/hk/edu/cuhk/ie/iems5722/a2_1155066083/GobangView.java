@@ -78,7 +78,7 @@ public class GobangView extends SurfaceView implements Params,
     public static int listenFlag;
     public static ArrayList<Integer> addToFlag = new ArrayList<>();
     public static int localNum = 0;
-    public static int currentTurn = CAMP_HERO;
+    public static int currentTurn = CAMP_ENEMY;
     static GobangView sInstance = null;
     // 控制循环
     boolean mbLoop = false;
@@ -86,6 +86,7 @@ public class GobangView extends SurfaceView implements Params,
     SurfaceHolder mSurfaceHolder = null;
     Bitmap bitmapBg = null;
     Bitmap bitmapWin = null;
+    Bitmap bitmapOver = null;
     Bitmap mBlack = null;
     Bitmap mWhite = null;
     Context mContext = null;
@@ -126,7 +127,8 @@ public class GobangView extends SurfaceView implements Params,
         setFocusable(true);
         mbLoop = true;
         bitmapBg = CreatMatrixBitmap(R.drawable.status, mScreenWidth, mScreenHeight);
-        bitmapWin = CreatMatrixBitmap(R.drawable.gameover, 2*mScreenWidth/3, mScreenHeight/4);
+        bitmapWin = CreatMatrixBitmap(R.drawable.win, 2*mScreenWidth/3, mScreenHeight/4);
+        bitmapOver = CreatMatrixBitmap(R.drawable.gameover, 2*mScreenWidth/3, mScreenHeight/4);
         mBlack = BitmapFactory.decodeResource(GobangView.sResources,
                 R.drawable.ai);
         mWhite = BitmapFactory.decodeResource(GobangView.sResources,
@@ -296,7 +298,12 @@ public class GobangView extends SurfaceView implements Params,
                 break;
             case GS_END:
                 RenderMap();
-                DrawImage(bitmapWin, mScreenWidth / 6, mScreenHeight / 3, 0);
+                if(mCampTurn == mCampWinner ) {
+                    DrawImage(bitmapWin, mScreenWidth / 6, mScreenHeight / 3, 0);
+                }
+                else {
+                    DrawImage(bitmapOver, mScreenWidth / 6, mScreenHeight / 3, 0);
+                }
                 Log.d(TAG,"winner"+ mCampWinner);
 
                 break;
