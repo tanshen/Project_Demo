@@ -77,6 +77,8 @@ public class GobangView extends SurfaceView implements Params,
     public static int[] flag = new int[1];
     public static int listenFlag;
     public static ArrayList<Integer> addToFlag = new ArrayList<>();
+    public static int localNum = 0;
+    public static int currentTurn;
     static GobangView sInstance = null;
     // 控制循环
     boolean mbLoop = false;
@@ -94,8 +96,6 @@ public class GobangView extends SurfaceView implements Params,
     private int mTitleHeight = 0;
     private float mTitleIndex_x = 0;
     private float mTitleIndex_y = 0;
-    public static int localNum = 0;
-    public static int currentTurn;
     private Emitter.Listener onConnectSuccess = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
@@ -153,9 +153,9 @@ public class GobangView extends SurfaceView implements Params,
         mGameState = newState;
         switch (mGameState) {
             case GS_GAME:
-                if (true){
+                if (mCampTurn > 0){
                     mGameMap = new int[CHESS_HEIGHT][CHESS_WIDTH];
-//                    mCampTurn = CAMP_HERO;
+                    currentTurn = CAMP_HERO;
                     ItemClear item = new ItemClear(mCampWinner + "");
                     sendClear(item);
 //                listenFlag = 0;
@@ -376,7 +376,7 @@ public class GobangView extends SurfaceView implements Params,
                         ItemSend item = new ItemSend(mMapIndexX+"", mMapIndexY+"", mCampTurn+"");
 //                        addToFlag.add(mCampTurn-1);
 //                        flag[0] = addToFlag.get(0);
-                        Log.d(TAG2, "currentTurn: " + currentTurn);
+//                        Log.d(TAG2, "currentTurn: " + currentTurn);
 //                        Log.d(TAG2, "GobangView.flag[0]: " + GobangView.flag[0]);
                         if (currentTurn == mCampTurn){
                             sendMessage(item);

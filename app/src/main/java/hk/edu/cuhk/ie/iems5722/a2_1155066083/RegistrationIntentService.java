@@ -61,6 +61,7 @@ public class RegistrationIntentService extends IntentService {
             // Subscribe to topic channels
             subscribeTopics(token);
 
+            MainActivity.sendUser(token);
             // You should store a boolean that indicates whether the generated token has been
             // sent to your server. If the boolean is false, send the token to your server,
             // otherwise your server should have already received the token.
@@ -75,6 +76,28 @@ public class RegistrationIntentService extends IntentService {
         // Notify UI that registration has completed, so the progress indicator can be hidden.
         Intent registrationComplete = new Intent(QuickstartPreferences.REGISTRATION_COMPLETE);
         LocalBroadcastManager.getInstance(this).sendBroadcast(registrationComplete);
+    }
+
+    private void sendRegistrationToServer(String token) {
+        // Add custom implementation, as needed.
+        HashMap<String, String> sendMsg = new HashMap<>();
+        sendMsg.put("user_id","1155066083" );
+        sendMsg.put("token",token );
+        new SendMsgTask(sendMsg).execute("http://52.196.31.83/iems5722/submit_push_token");
+    }
+
+    /**
+     * Subscribe to any GCM topics of interest, as defined by the TOPICS constant.
+     *
+     * @param token GCM token
+     * @throws IOException if unable to reach the GCM PubSub service
+     */
+    // [START subscribe_topics]
+    private void subscribeTopics(String token) throws IOException {
+        GcmPubSub pubSub = GcmPubSub.getInstance(this);
+        for (String topic : TOPICS) {
+            pubSub.subscribe(token, "/topics/" + topic, null);
+        }
     }
 
     /**
@@ -135,27 +158,6 @@ public class RegistrationIntentService extends IntentService {
                 e.printStackTrace();
             }
             return "OK";
-        }
-    }
-    private void sendRegistrationToServer(String token) {
-        // Add custom implementation, as needed.
-        HashMap<String, String> sendMsg = new HashMap<>();
-        sendMsg.put("user_id","1155066083" );
-        sendMsg.put("token",token );
-        new SendMsgTask(sendMsg).execute("http://52.196.31.83/iems5722/submit_push_token");
-    }
-
-    /**
-     * Subscribe to any GCM topics of interest, as defined by the TOPICS constant.
-     *
-     * @param token GCM token
-     * @throws IOException if unable to reach the GCM PubSub service
-     */
-    // [START subscribe_topics]
-    private void subscribeTopics(String token) throws IOException {
-        GcmPubSub pubSub = GcmPubSub.getInstance(this);
-        for (String topic : TOPICS) {
-            pubSub.subscribe(token, "/topics/" + topic, null);
         }
     }
     // [END subscribe_topics]
