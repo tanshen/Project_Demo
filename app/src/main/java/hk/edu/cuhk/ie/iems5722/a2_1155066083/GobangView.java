@@ -298,7 +298,7 @@ public class GobangView extends SurfaceView implements Params,
                 break;
             case GS_END:
                 RenderMap();
-                if(mCampTurn == mCampWinner ) {
+                if(mCampTurn != mCampWinner ) {
                     DrawImage(bitmapWin, mScreenWidth / 6, mScreenHeight / 3, 0);
                 }
                 else {
