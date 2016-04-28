@@ -78,7 +78,7 @@ public class GobangView extends SurfaceView implements Params,
     public static int listenFlag;
     public static ArrayList<Integer> addToFlag = new ArrayList<>();
     public static int localNum = 0;
-    public static int currentTurn;
+    public static int currentTurn = CAMP_HERO;
     static GobangView sInstance = null;
     // 控制循环
     boolean mbLoop = false;

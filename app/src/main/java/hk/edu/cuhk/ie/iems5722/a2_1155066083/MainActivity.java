@@ -233,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Already two players, you are watching now!", Toast.LENGTH_SHORT).show();
                 }
                 Log.d(TAG2, "mCampTurn: " +  GobangView.mCampTurn);
-                Log.d(TAG2, "currentTurn: " +  GobangView.currentTurn);
+                Log.d(TAG2, "MaincurrentTurn: " +  GobangView.currentTurn);
 
                 // MainActivity.this.finish();
             }
