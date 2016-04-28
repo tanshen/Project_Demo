@@ -144,7 +144,25 @@ public class GobangActivity extends AppCompatActivity {
             });
         }
     };
+    private Emitter.Listener getGobangWinnerListener = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject data = null;
+                    try {
+                        data = new JSONObject((String) args[0]);
+                        String winner = data.getString("winner");
+                        GobangView.mCampWinner = Integer.parseInt(winner);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
 
+                }
+            });
+        }
+    };
     private Emitter.Listener onConnectSuccess = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
@@ -197,6 +215,7 @@ public class GobangActivity extends AppCompatActivity {
         socket.on("get_gobang", getGobangListener);
         socket.on("get_gobang_clear", getGobangClearListener);
         socket.on("get_gobang_state", getGobangStateListener);
+        socket.on("get_gobang_winner", getGobangWinnerListener);
 //        socket.on("updateComing", onTextUpdate);
         socket.connect();
 
