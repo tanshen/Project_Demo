@@ -1,4 +1,4 @@
-package hk.edu.cuhk.ie.iems5722.a2_1155066083;
+package com.iems5722.group3;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
