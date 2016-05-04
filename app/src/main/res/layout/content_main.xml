@@ -9,7 +9,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="hk.edu.cuhk.ie.iems5722.a2_1155066083.MainActivity"
+    tools:context="com.iems5722.group3.MainActivity"
     tools:showIn="@layout/activity_main">
 
 
@@ -17,12 +17,12 @@
         android:id="@+id/gobang"
         android:layout_width="320dp"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:background="@color/colorbutton"
-        android:textSize="28sp"
-        android:text="GAME"
+        android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"/>
+        android:background="@color/colorbutton"
+        android:gravity="center"
+        android:text="GAME"
+        android:textSize="28sp"/>
     <!--<ListView-->
         <!--android:id="@+id/chatroom_list"-->
         <!--android:layout_width="match_parent"-->
@@ -34,23 +34,23 @@
         <!--android:layout_alignParentEnd="true"-->
         <!--android:divider="@null"/>-->
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="OK"
         android:id="@+id/tvText"
-        android:layout_below="@+id/chatroom_list"
-        android:layout_centerHorizontal="true" />
-    <TextView android:text="@string/registering_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/informationTextView"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_below="@+id/chatroom_list"
+        android:layout_centerHorizontal="true"
+        android:text="OK" />
+    <TextView android:id="@+id/informationTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/tvText"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:text="@string/registering_message"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
     <ProgressBar
+        android:id="@+id/registrationProgressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/chatroom_list"
-        android:id="@+id/registrationProgressBar" />
+        android:layout_below="@+id/chatroom_list" />
 
 </RelativeLayout>

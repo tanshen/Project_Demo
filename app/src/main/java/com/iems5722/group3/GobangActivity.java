@@ -1,21 +1,15 @@
-package hk.edu.cuhk.ie.iems5722.a2_1155066083;
+package com.iems5722.group3;
 
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
-import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -216,7 +210,6 @@ public class GobangActivity extends AppCompatActivity {
         socket.on("get_gobang_clear", getGobangClearListener);
         socket.on("get_gobang_state", getGobangStateListener);
         socket.on("get_gobang_winner", getGobangWinnerListener);
-//        socket.on("updateComing", onTextUpdate);
         socket.connect();
 
 

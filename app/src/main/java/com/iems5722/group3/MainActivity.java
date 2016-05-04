@@ -1,4 +1,4 @@
-package hk.edu.cuhk.ie.iems5722.a2_1155066083;
+package com.iems5722.group3;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -18,7 +18,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -48,8 +47,6 @@ import java.util.Map;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
-import io.socket.emitter.Emitter;
-import hk.edu.cuhk.ie.iems5722.a2_1155066083.GobangView;
 
 public class MainActivity extends AppCompatActivity {
     public static final String BASE_URL = "http://52.196.31.83/iems5722";

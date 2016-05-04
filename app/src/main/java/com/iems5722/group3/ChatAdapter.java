@@ -1,4 +1,4 @@
-package hk.edu.cuhk.ie.iems5722.a2_1155066083;
+package com.iems5722.group3;
 
 import android.content.Context;
 import android.util.Log;
@@ -9,18 +9,16 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import java.util.ArrayList;
 
+import com.iems5722.group3.R;
+
 /**
  * Created by tanshen on 2016/2/23.
  */
 public class ChatAdapter  extends ArrayAdapter<ChatContent> {
-    private static class ViewHolder {
-        TextView message;
-        TextView timestamp;
-        TextView name;
-    }
     public ChatAdapter(Context context,ArrayList<ChatContent> chatcontent){
         super(context, 0, chatcontent);
     }
+
     public View getView(int position, View convertView, ViewGroup parent){
         ChatContent chatcontent = getItem(position);
         ViewHolder viewholder = null;
@@ -46,5 +44,11 @@ public class ChatAdapter  extends ArrayAdapter<ChatContent> {
         viewholder.timestamp.setText(chatcontent.timestamp);
 
         return convertView;
+    }
+
+    private static class ViewHolder {
+        TextView message;
+        TextView timestamp;
+        TextView name;
     }
 }

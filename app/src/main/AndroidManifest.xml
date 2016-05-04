@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="hk.edu.cuhk.ie.iems5722.a2_1155066083">
+    package="com.iems5722.group3">
     <uses-permission android:name="android.permission.INTERNET" />
     <permission android:name="android.permission.C2D_MESSAGE" android:protectionLevel="signature" />
     <uses-permission android:name="android.permission.c2dm.permission..RECEIVE" />
@@ -11,23 +11,23 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name="com.iems5722.group3.MainActivity"
+            android:icon="@drawable/cuhk"
             android:label="@string/main_label"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:icon="@drawable/cuhk">
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ChatroomActivity"
+        <activity android:name="com.iems5722.group3.ChatroomActivity"
+            android:fitsSystemWindows="true"
             android:label="@string/chat_label"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustUnspecified|stateHidden"
-            android:fitsSystemWindows="true">
+            android:windowSoftInputMode="adjustUnspecified|stateHidden">
         </activity>
-        <activity android:name=".GobangActivity"
+        <activity android:name="com.iems5722.group3.GobangActivity"
             android:fitsSystemWindows="true"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
@@ -46,7 +46,7 @@
 
         <!-- [START gcm_listener] -->
         <service
-            android:name="hk.edu.cuhk.ie.iems5722.a2_1155066083.MyGcmListenerService"
+            android:name="com.iems5722.group3.MyGcmListenerService"
             android:exported="false" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
@@ -55,14 +55,14 @@
         <!-- [END gcm_listener] -->
         <!-- [START instanceId_listener] -->
         <service
-            android:name="hk.edu.cuhk.ie.iems5722.a2_1155066083.MyInstanceIDListenerService"
+            android:name="com.iems5722.group3.MyInstanceIDListenerService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.gms.iid.InstanceID"/>
             </intent-filter>
         </service>
         <service
-            android:name="hk.edu.cuhk.ie.iems5722.a2_1155066083.RegistrationIntentService"
+            android:name="com.iems5722.group3.RegistrationIntentService"
             android:exported="false">
         </service>
         <!-- [END instanceId_listener] -->

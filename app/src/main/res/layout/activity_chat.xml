@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="hk.edu.cuhk.ie.iems5722.a2_1155066083.ChatroomActivity">
+    tools:context="com.iems5722.group3.ChatroomActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"

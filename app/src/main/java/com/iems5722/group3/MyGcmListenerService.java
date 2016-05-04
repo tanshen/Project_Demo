@@ -1,4 +1,4 @@
-package hk.edu.cuhk.ie.iems5722.a2_1155066083;
+package com.iems5722.group3;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -12,7 +12,7 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GcmListenerService;
-import hk.edu.cuhk.ie.iems5722.a2_1155066083.GobangView;
+
 
 /**
  * Created by tanshen on 2016/4/5.

@@ -5,7 +5,7 @@ android {
     buildToolsVersion "23.0.2"
 
     defaultConfig {
-        applicationId "hk.edu.cuhk.ie.iems5722.a2_1155066083"
+        applicationId "com.iems5722.group3"
         minSdkVersion 14
         targetSdkVersion 23
         versionCode 1

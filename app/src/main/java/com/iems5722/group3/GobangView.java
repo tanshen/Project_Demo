@@ -1,4 +1,4 @@
-package hk.edu.cuhk.ie.iems5722.a2_1155066083;
+package com.iems5722.group3;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
@@ -9,8 +9,6 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Looper;
@@ -18,9 +16,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.widget.Toast;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -37,13 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
 
-import io.socket.client.IO;
-import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
-import android.os.Handler;
-import android.os.Message;
-
-import hk.edu.cuhk.ie.iems5722.a2_1155066083.GobangActivity;
 
 /**
  * Created by tanshen on 2016/4/23.
